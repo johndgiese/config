@@ -6,15 +6,15 @@ import beam
 # TODO: implement polarization submodule
 # TODO: implement ray submodule
 
-c = 299792458 # celeritas [m/s]
-h = 6.62606957e-34 # Planck's constant [J/s]
-hbar = h*2*pi # Reduced Planck's constant [J*rad/s]
+C = 299792458 # celeritas [m/s]
+H = 6.62606957e-34 # Planck's constant [J/s]
+HBAR = H*2*pi # Reduced Planck's constant [J*rad/s]
 
 
 def fabry_perot(nu, r1, r2, d):
     F = pi*sqrt(abs(r1*r2))/(1 - abs(r1*r2))
     T_max = (1 - abs(r1)**2)*(1 - abs(r2)**2)/(1 - abs(r1*r2))**2
-    nu_F = c/(2*d)
+    nu_F = C/(2*d)
     T = T_max/(1 + (2*F/pi*sin(pi*nu/nu_F))**2)
     return T
 

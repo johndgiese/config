@@ -4,15 +4,13 @@ import optics as op
 reload(op)
 
 # Spectra of two pulses
-wl = 890e-9
-nu0 = c/wl
 nu_ = linspace(c/880e-9, c/900e-9, 400, endpoint=False)
 pw = 190e-15     # pulse width [s]
 W0 = 100e-3      # average power after the EOM
-A = 0.5
-B = 0.5
+A=0.5
+B=0.5
 tdelay=2e-12
-S = W0*gaussian_spectra(nu_, nu0, pw)
+S = W0*gaussian_spectra(nu_, nu, pw)
 Sdouble = S*(abs(A)**2 + abs(B)**2 + 2*real(A*conj(B)*exp(1j*2*pi*nu_*tdelay)))
 
 # Intensity Transmission of a Fabry Perot

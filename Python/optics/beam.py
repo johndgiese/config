@@ -16,8 +16,6 @@ from math import pi, sqrt, exp, log, atan
 from copy import deepcopy
 import optics
 
-PLANCK = 6.626e-34
-
 class Beam:
     """An ideal monochromatic Gaussian beam.
 
@@ -543,7 +541,7 @@ class SaturableAbsorber(OpticalElement):
 
         alpha_0 = self.siga*self.n
         focal_volume = self.L*(pi*beam.w*beam.w)
-        E_per_absorber = beam.nu*PLANCK
+        E_per_absorber = beam.nu*H
         number_of_absorbers = focal_volume*self.n
         E_s = E_per_absorber*number_of_absorbers
         E_0 = beam.E
@@ -570,7 +568,7 @@ class SaturableAbsorber(OpticalElement):
         respect to the provided beam."""
         alpha_0 = self.siga*self.n
         focal_volume = self.L*(pi*beam.w*beam.w)
-        E_per_absorber = beam.nu*PLANCK
+        E_per_absorber = beam.nu*H
         number_of_absorbers = focal_volume*self.n
         E_s = E_per_absorber*number_of_absorbers
         return E_s
