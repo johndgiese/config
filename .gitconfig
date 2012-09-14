@@ -1,0 +1,8 @@
+[user]
+	name = johndgiese
+	email = johndgiese@gmail.com
+[color]
+    diff = true
+    ui = true
+    status = true
+    branch = true

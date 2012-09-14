@@ -1,0 +1,6 @@
+inoremap jk <ESC>
+nnoremap ; :
+nnoremap : ;
+set hlsearch
+set incsearch
+set regexsearch
