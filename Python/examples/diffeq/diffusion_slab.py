@@ -1,11 +1,13 @@
-""" Solve the 1D diffusion equation with a 0 initial condition and a single
-edge (at L) fixed at A. """
+""" A set of examples related to the diffusion equation. """
+
 
 from pylab import *
 
+# Solve the 1D diffusion equation with a 0 initial condition and a single
+# edge (at L) fixed at A.
+
 L = 1
 A = 1
-
 kappa = 1
 tau = 1/(kappa*pi**2/L**2)
 
@@ -26,3 +28,6 @@ for t in t_:
 xlabel('position')
 legend(leg, loc="top left")
 show()
+
+# Extend previous example to time dependent edges
+
