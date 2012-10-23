@@ -1,6 +1,8 @@
 \documentclass[10pt,letterpaper]{article}
-\usepackage{amsmath, amssymb, cite, color, graphicx}
+\usepackage{amsmath, amssymb, amsbsy}
+\usepackage{cite, graphicx}
 \usepackage{geometry}
+\usepackage{xcolor} 
 
 \geometry{letterpaper,nohead,margin=1in}
 \parindent1em
@@ -10,6 +12,7 @@
 
 \newcommand{\com}[1]{\hspace{2em}\textrm{#1}} % comments
 \newcommand{\sinc}[0]{\textrm{sinc}}
+\newcommand{\vv}[1]{\boldsymbold{#1}} % vector
 
 \title{}
 \date{}
@@ -17,15 +20,25 @@
 
 \begin{document}
 %\maketitle
+\noident
 \begin{align*}
 \end{align*}
 
+% NORMAL FIGURE
 %\begin{figure}[htb]
-%\centerline{\includegraphics[width=7.5cm]{example.eps}
-%\caption{Caption text goes here}
-%\label{marker} % reference with \ref{marker} or \pageref{marker}
+    %\centerline{\includegraphics[width=7.5cm]{example.eps}
+    %\caption{Caption text goes here.}
+    %\label{marker} % reference with \ref{marker} or \pageref{marker}
 %\end{figure}
 
+% INKSCAPE PDF+Latex
+%\begin{figure}[htb]
+    %\centering
+    %\def\svgwidth{6in}
+    %\input{example.pdf_tex}
+    %\caption{Caption text goes here.}
+    %\label{marker} % reference with \ref{marker} or \pageref{marker}
+%\end{figure}
 
 \end{document}
 
