@@ -14,7 +14,8 @@
 \usepackage{wrapfig}
 
 % is you want to make figures with multiple pictures
-\usepackage{caption, subcaption}
+\usepackage[font={small},margin=10pt]{caption}
+\usepackage{subcaption}
 
 % if you want to import code into latex (e.g. in an appendix)
 % http://en.wikibooks.org/wiki/LaTeX/Packages/Listings
@@ -55,9 +56,9 @@
 
 %% NORMAL FIGURE
 %\begin{figure}[htb]
-    %\centerline{\includegraphics[width=7.5cm]{example.eps}}
+    %\centerline{\includegraphics[width=0.9\textwidth]{example.pdf}}
     %\caption{Caption text goes here.}
-    %\label{marker} % reference with \ref{marker} or \pageref{marker}
+    %\label{fig:exam} % reference with \ref{fig:exam} or \pageref{fig:exam}
 %\end{figure}
 
 %% WRAP FIGURE -- text goes around it
@@ -66,7 +67,7 @@
     %\begin{center}
         %\includegraphics[width=0.48\textwidth]{example.pdf}
     %\end{center}
-    %\vspace(-20pt}
+    %\vspace{-20pt}
     %\caption{example caption}
     %\vspace{-10pt}
     %\label{marker} % reference with \ref{marker} or \pageref{marker}
