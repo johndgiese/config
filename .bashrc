@@ -109,7 +109,12 @@ fi
 # avoid problems with git and unity
 function gvim() {(/usr/bin/gvim -f "$@" &)}
 
-alias op="xdg-open"
+function op() {
+    for var in "$@"
+    do
+        xdg-open "$var"
+    done
+}
 
 # web-development
 export DJANGO_SETTINGS_MODULE=settings
