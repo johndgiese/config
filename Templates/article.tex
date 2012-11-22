@@ -17,24 +17,6 @@
 \usepackage[font={small},margin=10pt]{caption}
 \usepackage{subcaption}
 
-% if you want to import code into latex (e.g. in an appendix)
-% http://en.wikibooks.org/wiki/LaTeX/Packages/Listings
-% e.g. \lstinputlisting[language=Python]{source.py}
-\usepackage{listings}
-\lstset{fancyvrb=true}
-\lstset{
-    basicstyle=\small\tt,
-    keywordstyle=\color{blue},
-    identifierstyle=,
-    commentstyle=\color{orange},
-    stringstyle=\color{red},
-    showstringspaces=false,
-    tabsize=2,
-    numbers=left,
-    captionpos=b,
-    numerstyle=\tiny
-}
-
 \geometry{letterpaper,nohead,margin=1in}
 \parindent1em
 \parskip0pc
@@ -43,7 +25,7 @@
 
 \newcommand{\com}[1]{\hspace{2em}\textrm{#1}} % comments
 \newcommand{\sinc}[0]{\textrm{sinc}}
-\newcommand{\vv}[1]{\boldsymbold{#1}} % vector
+\newcommand{\vv}[1]{\boldsymbol{#1}} % vector
 
 \title{}
 \date{}
@@ -52,70 +34,7 @@
 \begin{document}
 %\maketitle
 \section*{Example Section}
-\noident
-
-%% NORMAL FIGURE
-%\begin{figure}[htb]
-    %\centerline{\includegraphics[width=0.9\textwidth]{example.pdf}}
-    %\caption{Caption text goes here.}
-    %\label{fig:exam} % reference with \ref{fig:exam} or \pageref{fig:exam}
-%\end{figure}
-
-%% FIGURE WITH SIDECAPTION
-%\begin{SCfigure}[htb]
-    %\centerline{\includegraphics[width=0.9\textwidth]{example.pdf}}
-    %\caption{Caption text goes here.}
-    %\label{fig:exam} % reference with \ref{fig:exam} or \pageref{fig:exam}
-%\end{SCfigure}
-
-%% WRAP FIGURE -- text goes around it
-%\begin{wrapfigure}{r}{0.5\textwidth}
-    %\vspace{-20pt}
-    %\begin{center}
-        %\includegraphics[width=0.48\textwidth]{example.pdf}
-    %\end{center}
-    %\vspace{-20pt}
-    %\caption{example caption}
-    %\vspace{-10pt}
-    %\label{marker} % reference with \ref{marker} or \pageref{marker}
-%\end{wrapfigure}
-
-%% FIGURE WITH THREE SUBFIGURES
-%\begin{figure}
-    %\centering
-    %\begin{subfigure}[b]{0.3\textwidth}
-        %\centering
-        %\includegraphics[width=\textwidth]{example1.pdf}
-        %\caption{This is the first figure.}
-        %\label{fig:sub1}
-    %\end{subfigure}%
-    %~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
-      %%(or a blank line to force the subfigure onto a new line)
-    %\begin{subfigure}[b]{0.3\textwidth}
-        %\centering
-        %\includegraphics[width=\textwidth]{example2.pdf}
-        %\caption{This is the second figure.}
-        %\label{fig:sub2}
-    %\end{subfigure}
-    %~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
-      %%(or a blank line to force the subfigure onto a new line)
-    %\begin{subfigure}[b]{0.3\textwidth}
-        %\centering
-        %\includegraphics[width=\textwidth]{example3.pdf}
-        %\caption{This is the third figure.}
-        %\label{fig:sub3}
-    %\end{subfigure}
-    %\caption{The caption for the entire figure goes here.}\label{fig:all3}
-%\end{figure}
-
-%% INKSCAPE PDF+Latex
-%\begin{figure}[htb]
-    %\centering
-    %\def\svgwidth{6in}
-    %\input{example.pdf_tex}
-    %\caption{Caption text goes here.}
-    %\label{marker} % reference with \ref{marker} or \pageref{marker}
-%\end{figure}
+\noindent
 
 \end{document}
 

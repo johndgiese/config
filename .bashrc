@@ -40,7 +40,7 @@ esac
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
 # should be on the output of commands, not on the prompt
-#force_color_prompt=yes
+force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
@@ -109,7 +109,12 @@ fi
 # avoid problems with git and unity
 function gvim() {(/usr/bin/gvim -f "$@" &)}
 
-alias op="xdg-open"
+function op() {
+    for var in "$@"
+    do
+        xdg-open "$var"
+    done
+}
 
 # web-development
 export DJANGO_SETTINGS_MODULE=settings
@@ -122,4 +127,6 @@ function djb() {
 }
 export PYTHONPATH=$PYTHONPATH:~/Rudd/ruddwisdom/
 
+# paths stuff
+export PYTHONPATH=$PYTHONPATH:~/python
 
