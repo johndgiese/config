@@ -1,7 +1,7 @@
 from numpy import array
 from os.path import exists, splitext
 from re import search
-from pylab import zeros, savefig, fftn, ifftn, fftshift, conj, isreal, real
+from pylab import *
 
 def autocorr(a, rmimag=True):
     """ N-d circular autocorrelation using fourier transform. """
@@ -22,29 +22,39 @@ def mean_autocorr(I):
     return mac
 
 # TODO: test this
-def findpeaks(X, threshold=None):
+def findpeaks(X, threshold=None, smooth=1, width=1):
+    """ 
+    Find peaks in an array.
+
+    optional parameters:
+    smooth - apply a moving average of this length, default=1
+    width - the approximate width of the peak
+    """
     N = len(X)
+    if not smooth == 1:
+        X = convolve(X.astype(float), ones(smooth), mode='same')/smooth
+
     peaks = []
     indices = []
-    for i in range(2, N - 1):
-        fd = X[i] - X[i+1]
-        bd = X[i] - X[i-1]
-        if fd > 0 and bd > 0: # is it a peak?
-            # if it is, run other tests...
+    for i in range(width, N - width):
+        fd1 = X[i] - X[i+1]
+        bd1 = X[i] - X[i-1]
+        fdw = X[i] - X[i+width]
+        bdw = X[i] - X[i-width]
+        if fdw > 0 and bdw > 0 and fd1 > 0 and bd1 > 0:
 
             if threshold:
-                if fd < threshold or bd < threshold:
+                if fd1 < threshold or bd1 < threshold:
                     break
 
-            # if it passes all tests, append to result arrays
             peaks.append(X[i])
             indices.append(i)
 
-    return array(peaks), array(indices)
+    return array(indices)
 
 def findvalleys(X, *args, **kwargs):
-    pks, ind = findpeaks(-X, *args, **kwargs);
-    return -pks, ind
+    """ Find the valleys in an array.  Same options as findpeaks. """
+    return findpeaks(-X, *args, **kwargs);
 
 # TODO: optimize this
 def findf(x):
