@@ -132,13 +132,16 @@ function djb() {
 # paths stuff
 export PYTHONPATH=$PYTHONPATH:~/python
 
+# better command prompt
+PS1='\[\e]0;\w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\]\$ '
 
 ## mac stuff
 
-# macvim instead of graphical vim
-alias gvim="mvim"
+if [ $(uname) != "Linux" ]; then
+    # macvim instead of graphical vim
+    alias gvim="mvim"
 
-# homebrew installs stuff in /usr/local/bin, thus we need this directory to
-# fall before /use/bin
-export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/share/python:$PATH
-PS1='\[\e]0;\w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\]\$ '
+    # homebrew installs stuff in /usr/local/bin, thus we need this directory to
+    # fall before /use/bin
+    export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/share/python:$PATH
+fi
