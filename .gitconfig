@@ -6,3 +6,5 @@
     ui = true
     status = true
     branch = true
+[credential]
+	helper = cache --timeout=7200
