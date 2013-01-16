@@ -119,6 +119,8 @@ function op() {
     done
 }
 
+alias ack="ack-grep"
+
 # web-development
 alias chrome="chromium-browser"
 export DJANGO_SETTINGS_MODULE=settings
