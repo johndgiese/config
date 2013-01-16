@@ -120,6 +120,7 @@ function op() {
 }
 
 # web-development
+alias chrome="chromium-browser"
 export DJANGO_SETTINGS_MODULE=settings
 alias dj="python manage.py $@"
 function djrs() {
@@ -130,7 +131,7 @@ function djb() {
 }
 
 # paths stuff
-export PYTHONPATH=$PYTHONPATH:~/python
+export PYTHONPATH=$PYTHONPATH:~/python:~/python/komodo
 
 # better command prompt
 PS1='\[\e]0;\w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\]\$ '

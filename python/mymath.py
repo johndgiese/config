@@ -1,7 +1,10 @@
-from numpy import array
 from os.path import exists, splitext
 from re import search
+
+from numpy import array
 from pylab import *
+
+DEBUG = True
 
 def autocorr(a, rmimag=True):
     """ N-d circular autocorrelation using fourier transform. """
@@ -163,7 +166,41 @@ def interact(func, x, y, adjustable):
     run_and_plot(None) # make the first plot
     show()
     
+class MultiplePeaks(Exception): pass
+class NoPeaksFound(Exception): pass
 
+from scipy.interpolate import splrep, sproot, splev
 
+def fwhm(x, y):
+    """
+    Determine full-with-half-maximum of a peaked set of points, x and y.
+
+    Assumes that there is only one peak present in the datasset.  The function
+    uses a spline interpolation of order k.
+    """
+    half_max = amax(y)/2.0
+    s = splrep(x, y - half_max)
+    roots = sproot(s)
     
+    if len(roots) > 2:
+        raise MultiplePeaks("The dataset appears to have multiple peaks, and "
+                "thus the FWHM can't be determined.")
+    elif len(roots) < 2:
+        raise NoPeaksFound("No proper peaks were found in the data set; likely "
+                "the dataset is flat (e.g. all zeros).")
+    else:
+        return abs(roots[1] - roots[0])
 
+def plot_fwhm(x, y, k=10):
+
+    y_max = amax(y)
+    s = splrep(x, y - y_max/2.0)
+    r1, r2 = sproot(s)
+    xx = linspace(amin(x), amax(x), 200)
+    yy = splev(xx, s) + y_max/2.0
+
+    f = figure()
+    plot(x, y, 'ko')
+    plot(xx, yy, 'r-')
+    axvspan(r1, r2, facecolor='k', alpha=0.5)
+    return f
