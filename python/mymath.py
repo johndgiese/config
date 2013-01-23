@@ -6,16 +6,29 @@ from pylab import *
 
 DEBUG = True
 
-def autocorr(a, rmimag=True):
-    """ N-d circular autocorrelation using fourier transform. """
+def corr(a, b):
+    """Circular correlation using fourier transform."""
     A = fftn(a)
-    G = fftshift(ifftn(A*conj(A)))
-    if rmimag and a.dtype.kind == 'c':
+    A[0, 0] = 0.0
+    A = A/std(a)
+    if not a is b:
+        B = fftn(b)
+        B[0, 0] = 0.0
+        B = B/std(b)
+    else:
+        B = A
+    Nx, Ny = a.shape
+    G = ifftn(A*conj(B))/Nx/Ny
+    if a.dtype.kind == 'f':
         G = real(G)
     return G
 
+def autocorr(a):
+    """Circular autocorrelation using fourier transform."""
+    return corr(a, a)
+
 def mean_autocorr(I):
-    """ Mean autocorrelation across the columns of an image. """
+    """Mean autocorrelation across the columns of an image."""
     m, n = I.shape
     mac = zeros(m)
     for col in I.T:
@@ -56,12 +69,12 @@ def findpeaks(X, threshold=None, smooth=1, width=1):
     return array(indices)
 
 def findvalleys(X, *args, **kwargs):
-    """ Find the valleys in an array.  Same options as findpeaks. """
+    """Find the valleys in an array.  Same options as findpeaks."""
     return findpeaks(-X, *args, **kwargs);
 
 # TODO: optimize this
 def findf(x):
-    """ Return the indice of the first true value in x. """
+    """Return the indice of the first true value in x."""
     i = 0
     for val in x:
         if val:
@@ -69,9 +82,8 @@ def findf(x):
         i += 1
     return false
 
-""" from stack-exchange: http://stackoverflow.com/questions/1827489/numpy-meshgrid-in-3d """
 def meshgridn(*arrs):
-    arrs = tuple(reversed(arrs))  #edit
+    arrs = tuple(reversed(arrs))
     lens = map(len, arrs)
     dim = len(arrs)
 

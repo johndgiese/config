@@ -10,20 +10,34 @@ class TestFwhm(unittest.TestCase):
         self.x = arange(10)
 
     def test_multiple_peaks(self):
-        self.y = array([1, 10, 6, 3, 5, 10, 7, 2, 1, 1])
-        self.assertRaises(m.MultiplePeaks, m.fwhm, self.x, self.y)
+        y = array([1, 10, 6, 3, 5, 10, 7, 2, 1, 1])
+        self.assertRaises(m.MultiplePeaks, m.fwhm, self.x, y)
 
     def test_flat(self):
-        self.y = ones(self.x.shape)
-        self.assertRaises(m.NoPeaksFound, m.fwhm, self.x, self.y)
+        y = ones(self.x.shape)
+        self.assertRaises(m.NoPeaksFound, m.fwhm, self.x, y)
 
     def test_gaussian(self):
-        self.sigma = rand()
-        self.x = linspace(-2*self.sigma, 2*self.sigma, 100)
-        self.y = exp(-(self.x/self.sigma)**2/2)
-        self.fwhm = m.fwhm(self.x, self.y)
-        self.gaus_fwhm = 2*sqrt(2*log(2))*self.sigma
-        self.assertAlmostEqual(self.fwhm, self.gaus_fwhm, places=3)
+        sigma = rand()
+        x = linspace(-2*sigma, 2*sigma, 100)
+        y = exp(-(x/sigma)**2/2)
+        fwhm = m.fwhm(x, y)
+        gaus_fwhm = 2*sqrt(2*log(2))*sigma
+        self.assertAlmostEqual(fwhm, gaus_fwhm, places=3)
+
+class TestCorr(unittest.TestCase):
+
+    def test_autocorr(self):
+        A = rand(10, 15)
+        corr0 = m.autocorr(A)
+        self.assertAlmostEqual(corr0[0, 0], 1.0)
+
+    def test_normalization(self):
+        """All values of the correlation should be between -1 and 1."""
+        A = rand(10, 15)
+        B = rand(10, 15)
+        C = m.corr(A, B)
+        self.assertTrue((abs(C) <= 1.000000001).all())
 
 if __name__ == '__main__':
     unittest.main()
