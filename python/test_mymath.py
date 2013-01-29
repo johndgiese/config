@@ -39,5 +39,46 @@ class TestCorr(unittest.TestCase):
         C = m.corr(A, B)
         self.assertTrue((abs(C) <= 1.000000001).all())
 
+class TestInterpMax(unittest.TestCase):
+
+    def test_closest_in_grid(self):
+        x, y = m.closest_in_grid(2, 3, 0, 0)
+        self.assertEqual((x, y), (0, 0))
+        x, y = m.closest_in_grid(2, 3, -1, 0)
+        self.assertEqual((x, y), (0, 0))
+        x, y = m.closest_in_grid(2, 3, -1, -4)
+        self.assertEqual((x, y), (0, 0))
+
+        x, y = m.closest_in_grid(2, 3, 2, 3)
+        self.assertEqual((x, y), (1, 2))
+        x, y = m.closest_in_grid(2, 3, 1, 30)
+        self.assertEqual((x, y), (1, 2))
+        x, y = m.closest_in_grid(2, 3, 100, 0)
+        self.assertEqual((x, y), (1, 0))
+
+    def test_easy(self):
+        x = [1, 2, 3]
+        y = [1, 2, 3]
+        img = array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
+        yy, xx, zz = m.interp_max(img, x=x, y=y)
+        self.assertAlmostEqual(xx, 2)
+        self.assertAlmostEqual(yy, 2)
+        self.assertAlmostEqual(zz, 1)
+
+    def test_surface(self):
+        precision=100
+        xm = rand()
+        ym = rand()
+        x = linspace(0, 1, 10)
+        y = linspace(0, 1, 10)
+        X, Y = meshgrid(x, y)
+        def func(x, y):
+            return -3*(x - xm)**2 - (y - ym)**2
+        Z = reshape(array(map(func, X, Y)), (len(y), len(x)))
+        yy, xx, zz = m.interp_max(Z, x, y, precision=precision)
+        expected_places = 1
+        self.assertAlmostEqual(xx, xm, places=expected_places)
+        self.assertAlmostEqual(yy, ym, places=expected_places)
+
 if __name__ == '__main__':
     unittest.main()

@@ -3,6 +3,8 @@ from re import search
 
 from numpy import array
 from pylab import *
+from scipy import interpolate
+from mpl_toolkits.mplot3d import Axes3D
 
 DEBUG = True
 
@@ -216,3 +218,62 @@ def plot_fwhm(x, y, k=10):
     plot(xx, yy, 'r-')
     axvspan(r1, r2, facecolor='k', alpha=0.5)
     return f
+
+def closest_in_grid(gy, gx, y, x):
+    """Given grid size and a point, return the closest point in the grid."""
+    x = max(min(gx - 1, x), 0)
+    y = max(min(gy - 1, y), 0)
+    return y, x
+
+def interp_max(img, x=None, y=None, precision=10):
+    """
+    Find the maximum value in an image using interpolation.
+
+    Assumes that the maximum value is near the maximum pixel.
+    
+    Arguments:
+    X - x grid positions
+    Y - y grid positions
+    precision - increase in grid spacing from interpolation
+
+    Returns:
+    max - the value of the maximum
+    x - the x position of the maximum
+    y - the y position of the maximum
+    """
+    nx, ny = img.shape
+
+    # find max of current image
+    xmax, ymax = unravel_index(argmax(img), img.shape)
+
+    # create subimg centered around the maximum
+    xe, ye = closest_in_grid(nx, ny, xmax + 10, ymax + 10)
+    xs, ys = closest_in_grid(nx, ny, xmax - 10, ymax - 10)
+    if (not x == None) and (not y == None):
+        xe = x[xe]
+        ye = y[ye]
+        xs = x[xs]
+        ys = y[ys]
+
+    xx = linspace(xs, xe, precision*(xe - xs) + 1) # +1 to stay on original grid
+    yy = linspace(ys, ye, precision*(ye - ys) + 1)
+    XX, YY = meshgrid(xx, yy)
+
+    X, Y = meshgrid(x, y)
+    points = zip(X.flatten(), Y.flatten())
+
+    sum_img = img[xs:xe, ys:ye]
+    values = img.flatten()
+    ZZ = interpolate.griddata(points, values, 
+            (XX.flatten(), YY.flatten()), method='cubic')
+    imax = argmax(ZZ)
+    ymax, xmax = unravel_index(imax, XX.shape)
+    return YY[ymax, xmax], XX[ymax, xmax], ZZ[imax]
+
+
+def scatter3(X, Y, Z):
+    fig = figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter3D(X, Y, Z)
+    return fig
+
