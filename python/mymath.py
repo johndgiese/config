@@ -5,20 +5,22 @@ from numpy import array
 from pylab import *
 from scipy import interpolate
 from mpl_toolkits.mplot3d import Axes3D
+from scipy.interpolate import splrep, sproot, splev
 
-DEBUG = True
+class MultiplePeaks(Exception): pass
+class NoPeaksFound(Exception): pass
 
 def corr(a, b):
     """Circular correlation using fourier transform."""
     A = fftn(a)
     A[0, 0] = 0.0
     A = A/std(a)
-    if not a is b:
+    if a is b:
+        B = A
+    else:
         B = fftn(b)
         B[0, 0] = 0.0
         B = B/std(b)
-    else:
-        B = A
     Nx, Ny = a.shape
     G = ifftn(A*conj(B))/Nx/Ny
     if a.dtype.kind == 'f':
@@ -28,16 +30,6 @@ def corr(a, b):
 def autocorr(a):
     """Circular autocorrelation using fourier transform."""
     return corr(a, a)
-
-def mean_autocorr(I):
-    """Mean autocorrelation across the columns of an image."""
-    m, n = I.shape
-    mac = zeros(m)
-    for col in I.T:
-        mac += autocorr(col, rmimag=False)
-    if I.dtype.kind == 'c':
-        mac = real(mac)
-    return mac
 
 # TODO: test this
 def findpeaks(X, threshold=None, smooth=1, width=1):
@@ -85,6 +77,7 @@ def findf(x):
     return false
 
 def meshgridn(*arrs):
+    """A multi-dimensional version of meshgrid."""
     arrs = tuple(reversed(arrs))
     lens = map(len, arrs)
     dim = len(arrs)
@@ -105,7 +98,18 @@ def meshgridn(*arrs):
 
     return tuple(ans)
 
+# TODO: handle zero-padding appropriatly
 def savenextfig(fname, *arrs):
+    """
+    Save figure using next available numbered name.
+
+    If no number is present in the name, then 0 is used.
+    
+    examples:
+        hello.png --> hello0.png
+        already_five.png --> already_five6.png
+
+    """
     while exists(fname):
         fname_noext, ext = splitext(fname)
         match = search(r'(.*[^\d])(\d+)$', fname_noext)
@@ -180,10 +184,6 @@ def interact(func, x, y, adjustable):
     run_and_plot(None) # make the first plot
     show()
     
-class MultiplePeaks(Exception): pass
-class NoPeaksFound(Exception): pass
-
-from scipy.interpolate import splrep, sproot, splev
 
 def fwhm(x, y):
     """
@@ -206,7 +206,6 @@ def fwhm(x, y):
         return abs(roots[1] - roots[0])
 
 def plot_fwhm(x, y, k=10):
-
     y_max = amax(y)
     s = splrep(x, y - y_max/2.0)
     r1, r2 = sproot(s)
@@ -219,15 +218,16 @@ def plot_fwhm(x, y, k=10):
     axvspan(r1, r2, facecolor='k', alpha=0.5)
     return f
 
-def closest_in_grid(gy, gx, y, x):
+def closest_in_grid(gx, gy, x, y):
     """Given grid size and a point, return the closest point in the grid."""
+
     x = max(min(gx - 1, x), 0)
     y = max(min(gy - 1, y), 0)
-    return y, x
+    return x, y
 
 def interp_max(img, x=None, y=None, precision=10):
     """
-    Find the maximum value in an image using interpolation.
+    Find the maximum value in an image using cubic interpolation.
 
     Assumes that the maximum value is near the maximum pixel.
     
@@ -247,15 +247,16 @@ def interp_max(img, x=None, y=None, precision=10):
     xmax, ymax = unravel_index(argmax(img), img.shape)
 
     # create subimg centered around the maximum
-    xe, ye = closest_in_grid(nx, ny, xmax + 10, ymax + 10)
-    xs, ys = closest_in_grid(nx, ny, xmax - 10, ymax - 10)
+    xe, ye = closest_in_grid(nx, ny, xmax + 5, ymax + 5)
+    xs, ys = closest_in_grid(nx, ny, xmax - 5, ymax - 5)
     if (not x == None) and (not y == None):
         xe = x[xe]
         ye = y[ye]
         xs = x[xs]
         ys = y[ys]
 
-    xx = linspace(xs, xe, precision*(xe - xs) + 1) # +1 to stay on original grid
+    # +1 to stay on original grid
+    xx = linspace(xs, xe, precision*(xe - xs) + 1) 
     yy = linspace(ys, ye, precision*(ye - ys) + 1)
     XX, YY = meshgrid(xx, yy)
 
@@ -267,11 +268,12 @@ def interp_max(img, x=None, y=None, precision=10):
     ZZ = interpolate.griddata(points, values, 
             (XX.flatten(), YY.flatten()), method='cubic')
     imax = argmax(ZZ)
-    ymax, xmax = unravel_index(imax, XX.shape)
-    return YY[ymax, xmax], XX[ymax, xmax], ZZ[imax]
+    xmax, ymax = unravel_index(imax, XX.shape)
+    return XX[ymax, xmax], YY[ymax, xmax], ZZ[imax]
 
 
 def scatter3(X, Y, Z):
+    """Create a 3D scatter plot."""
     fig = figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter3D(X, Y, Z)
