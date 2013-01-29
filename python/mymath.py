@@ -2,13 +2,15 @@ from os.path import exists, splitext
 from re import search
 
 from numpy import array
-from pylab import *
+from pylab import * # TODO: eventually only use necessary imports
 from scipy import interpolate
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import splrep, sproot, splev
 
 class MultiplePeaks(Exception): pass
 class NoPeaksFound(Exception): pass
+
+## IMAGE PROCESSING
 
 def corr(a, b):
     """Circular correlation using fourier transform."""
@@ -30,6 +32,55 @@ def corr(a, b):
 def autocorr(a):
     """Circular autocorrelation using fourier transform."""
     return corr(a, a)
+
+def interp_max(img, x=None, y=None, precision=10):
+    """
+    Find the maximum value in an image using cubic interpolation.
+
+    Assumes that the maximum value is near the maximum pixel.
+    
+    Arguments:
+    X - x grid positions
+    Y - y grid positions
+    precision - increase in grid spacing from interpolation
+
+    Returns:
+    max - the value of the maximum
+    x - the x position of the maximum
+    y - the y position of the maximum
+    """
+    nx, ny = img.shape
+
+    # find max of current image
+    xmax, ymax = unravel_index(argmax(img), img.shape)
+
+    # create subimg centered around the maximum
+    xe, ye = closest_in_grid(nx, ny, xmax + 5, ymax + 5)
+    xs, ys = closest_in_grid(nx, ny, xmax - 5, ymax - 5)
+    if (not x == None) and (not y == None):
+        xe = x[xe]
+        ye = y[ye]
+        xs = x[xs]
+        ys = y[ys]
+
+    # +1 to stay on original grid
+    xx = linspace(xs, xe, precision*(xe - xs) + 1) 
+    yy = linspace(ys, ye, precision*(ye - ys) + 1)
+    XX, YY = meshgrid(xx, yy)
+
+    X, Y = meshgrid(x, y)
+    points = zip(X.flatten(), Y.flatten())
+
+    sum_img = img[xs:xe, ys:ye]
+    values = img.flatten()
+    ZZ = interpolate.griddata(points, values, 
+            (XX.flatten(), YY.flatten()), method='cubic')
+    imax = argmax(ZZ)
+    xmax, ymax = unravel_index(imax, XX.shape)
+    return XX[ymax, xmax], YY[ymax, xmax], ZZ[imax]
+
+
+## GENERAL SIGNAL PROCESSING
 
 # TODO: test this
 def findpeaks(X, threshold=None, smooth=1, width=1):
@@ -66,37 +117,28 @@ def findvalleys(X, *args, **kwargs):
     """Find the valleys in an array.  Same options as findpeaks."""
     return findpeaks(-X, *args, **kwargs);
 
-# TODO: optimize this
-def findf(x):
-    """Return the indice of the first true value in x."""
-    i = 0
-    for val in x:
-        if val:
-            return i
-        i += 1
-    return false
+def fwhm(x, y):
+    """
+    Determine full-with-half-maximum of a peaked set of points, x and y.
 
-def meshgridn(*arrs):
-    """A multi-dimensional version of meshgrid."""
-    arrs = tuple(reversed(arrs))
-    lens = map(len, arrs)
-    dim = len(arrs)
+    Assumes that there is only one peak present in the datasset.  The function
+    uses a spline interpolation of order k.
+    """
+    half_max = amax(y)/2.0
+    s = splrep(x, y - half_max)
+    roots = sproot(s)
+    
+    if len(roots) > 2:
+        raise MultiplePeaks("The dataset appears to have multiple peaks, and "
+                "thus the FWHM can't be determined.")
+    elif len(roots) < 2:
+        raise NoPeaksFound("No proper peaks were found in the data set; likely "
+                "the dataset is flat (e.g. all zeros).")
+    else:
+        return abs(roots[1] - roots[0])
 
-    sz = 1
-    for s in lens:
-        sz*=s
 
-    ans = []    
-    for i, arr in enumerate(arrs):
-        slc = [1]*dim
-        slc[i] = lens[i]
-        arr2 = asarray(arr).reshape(slc)
-        for j, sz in enumerate(lens):
-            if j!=i:
-                arr2 = arr2.repeat(sz, axis=j) 
-        ans.append(arr2)
-
-    return tuple(ans)
+## VISUALIZATION
 
 # TODO: handle zero-padding appropriatly
 def savenextfig(fname, *arrs):
@@ -183,28 +225,14 @@ def interact(func, x, y, adjustable):
 
     run_and_plot(None) # make the first plot
     show()
+
+def scatter3(X, Y, Z):
+    """Create a 3D scatter plot."""
+    fig = figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter3D(X, Y, Z)
+    return fig
     
-
-def fwhm(x, y):
-    """
-    Determine full-with-half-maximum of a peaked set of points, x and y.
-
-    Assumes that there is only one peak present in the datasset.  The function
-    uses a spline interpolation of order k.
-    """
-    half_max = amax(y)/2.0
-    s = splrep(x, y - half_max)
-    roots = sproot(s)
-    
-    if len(roots) > 2:
-        raise MultiplePeaks("The dataset appears to have multiple peaks, and "
-                "thus the FWHM can't be determined.")
-    elif len(roots) < 2:
-        raise NoPeaksFound("No proper peaks were found in the data set; likely "
-                "the dataset is flat (e.g. all zeros).")
-    else:
-        return abs(roots[1] - roots[0])
-
 def plot_fwhm(x, y, k=10):
     y_max = amax(y)
     s = splrep(x, y - y_max/2.0)
@@ -218,6 +246,10 @@ def plot_fwhm(x, y, k=10):
     axvspan(r1, r2, facecolor='k', alpha=0.5)
     return f
 
+
+
+## CONVENIENCE FUNCTIONS 
+
 def closest_in_grid(gx, gy, x, y):
     """Given grid size and a point, return the closest point in the grid."""
 
@@ -225,57 +257,35 @@ def closest_in_grid(gx, gy, x, y):
     y = max(min(gy - 1, y), 0)
     return x, y
 
-def interp_max(img, x=None, y=None, precision=10):
-    """
-    Find the maximum value in an image using cubic interpolation.
+# TODO: optimize this
+def findf(x):
+    """Return the indice of the first true value in x."""
+    i = 0
+    for val in x:
+        if val:
+            return i
+        i += 1
+    return false
 
-    Assumes that the maximum value is near the maximum pixel.
-    
-    Arguments:
-    X - x grid positions
-    Y - y grid positions
-    precision - increase in grid spacing from interpolation
+def meshgridn(*arrs):
+    """A multi-dimensional version of meshgrid."""
+    arrs = tuple(reversed(arrs))
+    lens = map(len, arrs)
+    dim = len(arrs)
 
-    Returns:
-    max - the value of the maximum
-    x - the x position of the maximum
-    y - the y position of the maximum
-    """
-    nx, ny = img.shape
+    sz = 1
+    for s in lens:
+        sz*=s
 
-    # find max of current image
-    xmax, ymax = unravel_index(argmax(img), img.shape)
+    ans = []    
+    for i, arr in enumerate(arrs):
+        slc = [1]*dim
+        slc[i] = lens[i]
+        arr2 = asarray(arr).reshape(slc)
+        for j, sz in enumerate(lens):
+            if j!=i:
+                arr2 = arr2.repeat(sz, axis=j) 
+        ans.append(arr2)
 
-    # create subimg centered around the maximum
-    xe, ye = closest_in_grid(nx, ny, xmax + 5, ymax + 5)
-    xs, ys = closest_in_grid(nx, ny, xmax - 5, ymax - 5)
-    if (not x == None) and (not y == None):
-        xe = x[xe]
-        ye = y[ye]
-        xs = x[xs]
-        ys = y[ys]
-
-    # +1 to stay on original grid
-    xx = linspace(xs, xe, precision*(xe - xs) + 1) 
-    yy = linspace(ys, ye, precision*(ye - ys) + 1)
-    XX, YY = meshgrid(xx, yy)
-
-    X, Y = meshgrid(x, y)
-    points = zip(X.flatten(), Y.flatten())
-
-    sum_img = img[xs:xe, ys:ye]
-    values = img.flatten()
-    ZZ = interpolate.griddata(points, values, 
-            (XX.flatten(), YY.flatten()), method='cubic')
-    imax = argmax(ZZ)
-    xmax, ymax = unravel_index(imax, XX.shape)
-    return XX[ymax, xmax], YY[ymax, xmax], ZZ[imax]
-
-
-def scatter3(X, Y, Z):
-    """Create a 3D scatter plot."""
-    fig = figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter3D(X, Y, Z)
-    return fig
+    return tuple(ans)
 
