@@ -77,7 +77,7 @@ def interp_max(img, x=None, y=None, precision=10):
             (XX.flatten(), YY.flatten()), method='cubic')
     imax = argmax(ZZ)
     xmax, ymax = unravel_index(imax, XX.shape)
-    return XX[ymax, xmax], YY[ymax, xmax], ZZ[imax]
+    return XX[xmax, ymax], YY[xmax, ymax], ZZ[imax]
 
 
 ## GENERAL SIGNAL PROCESSING
