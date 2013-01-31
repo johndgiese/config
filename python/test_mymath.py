@@ -57,12 +57,19 @@ class TestInterpMax(unittest.TestCase):
         self.assertEqual((x, y), (1, 0))
 
     def test_easy(self):
+        img = array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
         x = [1, 2, 3]
         y = [1, 2, 3]
-        img = array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
         xx, yy, zz = m.interp_max(img, x=x, y=y)
         self.assertAlmostEqual(xx, 2)
         self.assertAlmostEqual(yy, 2)
+        self.assertAlmostEqual(zz, 1)
+
+    def test_easy_using_indices(self):
+        img = array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
+        xx, yy, zz = m.interp_max(img)
+        self.assertAlmostEqual(xx, 1)
+        self.assertAlmostEqual(yy, 1)
         self.assertAlmostEqual(zz, 1)
 
     def test_surface(self):

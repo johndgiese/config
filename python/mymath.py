@@ -50,6 +50,10 @@ def interp_max(img, x=None, y=None, precision=10):
     y - the y position of the maximum
     """
     nx, ny = img.shape
+    if x == None:
+        x = arange(nx)
+    if y == None:
+        y = arange(ny)
 
     # find max of current image
     xmax, ymax = unravel_index(argmax(img), img.shape)
@@ -57,11 +61,10 @@ def interp_max(img, x=None, y=None, precision=10):
     # create subimg centered around the maximum
     xe, ye = closest_in_grid(nx, ny, xmax + 5, ymax + 5)
     xs, ys = closest_in_grid(nx, ny, xmax - 5, ymax - 5)
-    if (not x == None) and (not y == None):
-        xe = x[xe]
-        ye = y[ye]
-        xs = x[xs]
-        ys = y[ys]
+    xe = x[xe]
+    ye = y[ye]
+    xs = x[xs]
+    ys = y[ys]
 
     # +1 to stay on original grid
     xx = linspace(xs, xe, precision*(xe - xs) + 1) 
