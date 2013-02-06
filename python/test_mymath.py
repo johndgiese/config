@@ -1,8 +1,12 @@
 import unittest
 
 from pylab import *
+import pylab as pl
+import scipy
 
 import mymath as m
+
+PLOTTING = False
 
 class TestFwhm(unittest.TestCase):
 
@@ -87,6 +91,119 @@ class TestInterpMax(unittest.TestCase):
         expected_places = 1
         self.assertAlmostEqual(xx, xm, places=expected_places)
         self.assertAlmostEqual(yy, ym, places=expected_places)
+
+class TestRegister(unittest.TestCase):
+
+    def setUp(self):
+        self.img0 = scipy.misc.lena()
+        self.img0ft = fft2(self.img0)
+        ny, nx = self.img0.shape
+        self.ny = ny
+        self.nx = nx
+        self.row_shift = randint(self.nx)
+        self.col_shift = randint(self.ny)
+        self.img1 = m.circular_shift(self.img0ft, 
+                self.row_shift, self.col_shift, transformed=True)
+        self.img1ft = fft2(self.img1)
+
+    def test_upsample_1(self):
+        """Test algorithm without subpixel registration."""
+
+
+        img0 = scipy.misc.lena()
+        img0ft = fft2(img0)
+        ny, nx = img0.shape
+        row_shift = randint(-nx/2, nx/2)
+        col_shift = randint(-ny/2, ny/2)
+        img1 = m.circular_shift(img0ft, row_shift, col_shift, transformed=True)
+        img1ft = fft2(img1)
+
+        row, col = m.register(img0ft, img1ft, transformed=True)
+        self.assertEqual(row, row_shift)
+        self.assertEqual(col, col_shift)
+
+    def test_upsample_10(self):
+        row, col = m.register(self.img0ft, self.img1ft, 
+                upsample=10, transformed=True)
+        self.assertEqual(row, self.row_shift)
+        self.assertEqual(col, self.col_shift)
+
+class TestDFTUpsample(unittest.TestCase):
+
+    def test_equivalence(self):
+        """
+        The dft_upsample function should be equivalent to:
+        1. Embedding the array "a" in an array that is "upsample" times larger
+           in each dimension. ifftshift to bring the center of the image to
+           (0, 0).
+        2. Take the FFT of the larger array
+        3. Extract an [rows, cols] region of the result. Starting with the 
+           [row_offset col_offset] element.
+        """
+        upsample = 5
+        half = int((upsample - 1)/2.0)
+
+        aa = array([[2, 2, 2, 2],
+                    [0, 2, 2, 2],
+                    [0, 0, 0, 2],
+                    [10, 10, 0, 2]])
+        a = fft2(aa)
+        ny, nx = a.shape
+        padded = zeros([upsample*ny, upsample*nx], dtype='complex')
+        padded[half*ny:(half+1)*ny,half*nx:(half+1)*nx] = fftshift(a)
+        padded = ifftshift(padded)
+        paddedft = ifft2(padded)
+
+        row_offset = 0
+        col_offset = 0
+        rows = cols = 4
+        b_slow = paddedft[
+            row_offset:row_offset + rows,
+            col_offset:col_offset + cols
+        ]
+        b_fast = m.upsampled_idft2(a, upsample, rows, cols, row_offset, col_offset)
+
+        # normalize everything
+        b_fast = b_fast/mean(abs(b_fast))
+        b_slow = b_slow/mean(abs(b_slow))
+
+        if PLOTTING:
+            subplot(221)
+            imshow(abs(b_slow))
+            title('slow abs')
+            subplot(222)
+            imshow(abs(b_fast))
+            title('fast abs')
+            subplot(223)
+            imshow(unwrap(angle(b_slow)))
+            title('slow angle')
+            subplot(224)
+            imshow(unwrap(angle(b_fast)))
+            title('fast angle')
+            show()
+
+        self.assertTrue(np.allclose(b_slow, b_fast))
+
+    def test_simple(self):
+        """
+        Fourier transforms can be accomplished using matrices.
+
+        You need two of them (one for each dimension).
+
+        This test is a simple sanity check.
+        """
+
+        a = fft2(array([[0, 2, 2, 0],
+                   [0, 2, 2, 2],
+                   [0, 0, 0, 2],
+                   [10, 0, 0, 2]]))
+        ny, nx = a.shape
+
+        F = array([[1, 1, 1, 1],
+                   [1, 1j, -1, -1j],
+                   [1, -1, 1, -1],
+                   [1, -1j, -1, 1j]])
+        self.assertTrue(np.allclose(ifft2(a), m.dot(F, a, F)/nx/ny))
 
 if __name__ == '__main__':
     unittest.main()

@@ -6,6 +6,7 @@ from pylab import * # TODO: eventually only use necessary imports
 from scipy import interpolate
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import splrep, sproot, splev
+import numpy as np
 
 class MultiplePeaks(Exception): pass
 class NoPeaksFound(Exception): pass
@@ -29,9 +30,131 @@ def corr(a, b):
         G = real(G)
     return G
 
+
 def autocorr(a):
     """Circular autocorrelation using fourier transform."""
     return corr(a, a)
+
+
+def register(img0, img1, upsample=1, transformed=False):
+    """
+    Efficiently register two images to a given fraction of a pixel.
+
+    The upsampling determines the precision of the registration; for example,
+    and upsampling of 10 will register the images to within 1/10th of a pixel.
+
+    The algorithm is based off of the following citation:
+        Manuel Guizar-Sicairos, Samuel T. Thurman, and James R. Fienup, 
+        "Efficient subpixel image registration algorithms," Opt. Lett. 33, 
+        156-158 (2008).
+
+    Arguments:
+        img0 - first image (or its fft, not fftshifted)
+        img1 - second image (or its fft)
+        upsample - amount of upsampling
+        transformed - have the inputs been transformed?
+    """
+
+    def peak_shift_from_index(img):
+        """
+        Determine the image shift from the correlation.
+
+        Because the correlation is taken in the fourier domain, it is a
+        "circular correlation," and thus a negative shift appears to wrap
+        around the other side of the correlation image; this function accounts
+        for this.  
+        
+        Note that if you have shifts greater than half the image size it is
+        ambiguous because of the circular nature of the correlation.  To simplify
+        the code, all shifts are assumed to be less than half the image
+        size.
+        """
+        ny, nx = img.shape
+        row, col = unravel_index(argmax(img), (ny, nx))
+        if row > floor(ny/2):
+            row = row - ny
+        if col > floor(nx/2):
+            col = col - nx
+        return row, col
+
+    if not transformed:
+        img0ft = fft2(img0)
+        img1ft = fft2(img1)
+    else:
+        img0ft = img0
+        img1ft = img1
+
+    ny, nx = img0ft.shape
+    corr_img = ifft2(img0ft*conj(img1ft))
+    corr_img = abs(corr_img)
+    row_first_guess, col_first_guess = peak_shift_from_index(corr_img)
+
+    if upsample > 1:
+        row = round(row_first_guess*upsample)
+        col = round(col_first_guess*upsample)
+        dftshift = floor(ceil(upsample*15)/2.0) # center of output is at dftshift
+        a = img0ft*conj(img1ft)
+        sub_cols = sub_rows = ceil(15*upsample)
+        row_offset = 15 - row
+        col_offset = 15 - col
+        b = upsampled_idft2(a, upsample, sub_rows, sub_cols, row_offset, col_offset)
+        b = abs(b)
+        imshow(b); figure(); imshow(img0); show()
+
+        # convert the index in the interpolated correlation to a position in
+        # the original image
+        sub_row, sub_col = unravel_index(argmax(b), b.shape)
+        sub_row = sub_row - dftshift
+        sub_col = sub_col - dftshift
+        row = (row + sub_row)/upsample
+        col = (col + sub_col)/upsample
+        print(row)
+        print(col)
+
+    return ny - row, nx - col
+
+
+def upsampled_idft2(a, upsample, rows, cols, row_offset, col_offset):
+    """
+    Calculate a portion of the upsampled inverse DFT of a using a matrix.
+    
+    rows and cols specify the size of the portion of the a IDFT, while
+    row_offset and col_offset indicate the lower left position of the portion.
+
+    The returned array is normalized relative to the original array
+    """
+
+    rows_a, cols_a = a.shape
+
+    # generate matrix for the first (column) upsampled ift
+    wc = np.fft.fftfreq(cols_a)/upsample
+    wr = arange(cols) - col_offset
+    w = outer(wc, wr)
+    kernc = exp(2j*pi*w)
+
+    # generate matrix for the second (row) upsampled ift
+    wc = np.fft.fftfreq(rows_a)/upsample
+    wr = arange(rows) - row_offset
+    w = outer(wr, wc)
+    kernr = exp(2j*pi*w)
+
+    return dot(kernr, a, kernc)
+
+
+def circular_shift(img, row_shift, col_shift, transformed=False):
+    """Subpixel shift an image using the Fourier-shift theorem."""
+
+    if not transformed:
+        imgft = fft2(img)
+    else:
+        imgft = img
+    nx, ny = imgft.shape
+    x = linspace(0, 1, nx, endpoint=False)
+    y = linspace(0, 1, ny, endpoint=False)
+    Y, X = meshgrid(y, x)
+    shiftedft = imgft*exp(-(Y*col_shift + X*row_shift)*2j*pi)
+    return ifft2(shiftedft)
+
 
 def interp_max(img, x=None, y=None, precision=10):
     """
@@ -116,9 +239,11 @@ def findpeaks(X, threshold=None, smooth=1, width=1):
 
     return array(indices)
 
+
 def findvalleys(X, *args, **kwargs):
     """Find the valleys in an array.  Same options as findpeaks."""
     return findpeaks(-X, *args, **kwargs);
+
 
 def fwhm(x, y):
     """
@@ -164,6 +289,7 @@ def savenextfig(fname, *arrs):
         else:
             fname = fname_noext + '0' + ext
     savefig(fname, *arrs)
+
 
 def interact(func, x, y, adjustable):
     """ Interactively plot a functions' values. 
@@ -229,6 +355,7 @@ def interact(func, x, y, adjustable):
     run_and_plot(None) # make the first plot
     show()
 
+
 def scatter3(X, Y, Z):
     """Create a 3D scatter plot."""
     fig = figure()
@@ -236,6 +363,7 @@ def scatter3(X, Y, Z):
     ax.scatter3D(X, Y, Z)
     return fig
     
+
 def plot_fwhm(x, y, k=10):
     y_max = amax(y)
     s = splrep(x, y - y_max/2.0)
@@ -260,6 +388,7 @@ def closest_in_grid(gx, gy, x, y):
     y = max(min(gy - 1, y), 0)
     return x, y
 
+
 # TODO: optimize this
 def findf(x):
     """Return the indice of the first true value in x."""
@@ -270,15 +399,17 @@ def findf(x):
         i += 1
     return false
 
+
 def meshgridn(*arrs):
     """A multi-dimensional version of meshgrid."""
+
     arrs = tuple(reversed(arrs))
     lens = map(len, arrs)
     dim = len(arrs)
 
     sz = 1
     for s in lens:
-        sz*=s
+        sz *= s
 
     ans = []    
     for i, arr in enumerate(arrs):
@@ -289,6 +420,23 @@ def meshgridn(*arrs):
             if j!=i:
                 arr2 = arr2.repeat(sz, axis=j) 
         ans.append(arr2)
-
     return tuple(ans)
+
+
+def dot(*arrays):
+    """
+    Dot product of many arrays.
+    
+    For 2-D arrays it is equivalent to matrix multiplication, and for 1-D
+    arrays it is the inner product without taking the complex conjugate.  For
+    N-D arrays it is the sum of the product over the last two axis.
+    """
+    
+    if len(arrays) < 2:
+        raise TypeError("Need at least two matrices to multiply.") 
+    
+    out = np.dot(arrays[0], arrays[1])
+    for m in arrays[2:]:
+        out = np.dot(out, m)
+    return out
 
