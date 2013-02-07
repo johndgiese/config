@@ -410,6 +410,3 @@ image.interpolation  : nearest # see help(imshow) for options
 # files, but sometimes you want to avoid that. In that case set
 # examples.download to False and examples.directory to the directory
 # where you have a checkout of https://github.com/matplotlib/sample_data
-
-examples.download : False  # False to bypass downloading mechanism
-examples.directory : '/usr/share/matplotlib/sampledata'   # absolute directory to look in if download is false
