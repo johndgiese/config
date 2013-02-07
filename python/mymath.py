@@ -461,4 +461,6 @@ def isodd(el):
     return el % 2
 
 def padarray(a, padsize, padval=0):
+    d = a.shape
+    out = zeros(d + padsize)
 

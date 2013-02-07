@@ -156,7 +156,7 @@ class TestDFTUpsample(unittest.TestCase):
         # pick random odd upsampling
         upsample = randint(1, 16)
         upsample = 4
-        if m.iseven(upsample):
+        if iseven(upsample):
             half = int((upsample - 1)/2.0)
         else:
             half = int(upsample/2.0) - 1
