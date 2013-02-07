@@ -68,6 +68,8 @@ def register(img0, img1, upsample=1, transformed=False):
         ambiguous because of the circular nature of the correlation.  To simplify
         the code, all shifts are assumed to be less than half the image
         size.
+
+        Also note that the original images were assumed to be real.
         """
         ny, nx = img.shape
         row, col = unravel_index(argmax(img), (ny, nx))
@@ -85,60 +87,67 @@ def register(img0, img1, upsample=1, transformed=False):
         img1ft = img1
 
     ny, nx = img0ft.shape
-    corr_img = ifft2(img0ft*conj(img1ft))
-    corr_img = abs(corr_img)
+    corr_img = ifft2(img1ft*conj(img0ft))
+    corr_img = abs(corr_img) 
     row_first_guess, col_first_guess = peak_shift_from_index(corr_img)
 
     if upsample > 1:
-        row = round(row_first_guess*upsample)
-        col = round(col_first_guess*upsample)
-        dftshift = floor(ceil(upsample*15)/2.0) # center of output is at dftshift
-        a = img0ft*conj(img1ft)
-        sub_cols = sub_rows = ceil(15*upsample)
-        row_offset = 15 - row
-        col_offset = 15 - col
-        b = upsampled_idft2(a, upsample, sub_rows, sub_cols, row_offset, col_offset)
-        b = abs(b)
+        # define portion of image centered on the first guess
+        side = 3.0
+        height = width = ceil(side*upsample)
+        top = round((row_first_guess - side/2.0)*upsample)
+        left = round((col_first_guess - side/2.0)*upsample)
+
+        # calculate zero-padded inverse dft on area around first guess
+        a = img1ft*conj(img0ft)
+        b = upsampled_idft2(a, upsample, height, width, top, left)
+        b = abs(b) # removing leftover imaginary part
+
         imshow(b); figure(); imshow(img0); show()
 
-        # convert the index in the interpolated correlation to a position in
-        # the original image
+        # use upsampled idft to find max in terms of the original images pixels
         sub_row, sub_col = unravel_index(argmax(b), b.shape)
-        sub_row = sub_row - dftshift
-        sub_col = sub_col - dftshift
-        row = (row + sub_row)/upsample
-        col = (col + sub_col)/upsample
-        print(row)
-        print(col)
+        row_final_guess = (top  + sub_row)/upsample
+        col_final_guess = (left + sub_col)/upsample
+    else:
+        row_final_guess = row_first_guess
+        col_final_guess = col_first_guess
 
-    return ny - row, nx - col
+    return row_final_guess, col_final_guess
 
 
-def upsampled_idft2(a, upsample, rows, cols, row_offset, col_offset):
+def upsampled_idft2(a, upsample, height, width, top, left):
     """
     Calculate a portion of the upsampled inverse DFT of a using a matrix.
     
-    rows and cols specify the size of the portion of the a IDFT, while
-    row_offset and col_offset indicate the lower left position of the portion.
+    Height, width, top and left specify the portion of the IDFT that will be
+    taken in terms of upsampled pixels
 
-    The returned array is normalized relative to the original array
+    The returned array is normalized so that it has the same values as
+    ift(input) --- of course there will be slight variations due to
+    interpolatation.
+
+    See G. Strang, Introduction to Linear Algebra, Section 10.3 for some
+    explanation of the fourier matrices.
     """
 
     rows_a, cols_a = a.shape
 
-    # generate matrix for the first (column) upsampled ift
+    # generate matrix that does the column inverse dft
     wc = np.fft.fftfreq(cols_a)/upsample
-    wr = arange(cols) - col_offset
+    wr = arange(left, left + width)
     w = outer(wc, wr)
     kernc = exp(2j*pi*w)
 
-    # generate matrix for the second (row) upsampled ift
+    # generate matrix that does the row inverse dft
     wc = np.fft.fftfreq(rows_a)/upsample
-    wr = arange(rows) - row_offset
+    wr = arange(top, top + height)
     w = outer(wr, wc)
     kernr = exp(2j*pi*w)
 
-    return dot(kernr, a, kernc)
+    norm = rows_a*cols_a
+
+    return dot(kernr, a, kernc)/norm
 
 
 def circular_shift(img, row_shift, col_shift, transformed=False):
@@ -392,6 +401,7 @@ def closest_in_grid(gx, gy, x, y):
 # TODO: optimize this
 def findf(x):
     """Return the indice of the first true value in x."""
+
     i = 0
     for val in x:
         if val:
@@ -439,4 +449,16 @@ def dot(*arrays):
     for m in arrays[2:]:
         out = np.dot(out, m)
     return out
+
+
+@vectorize
+def iseven(el):
+    return 1 - el % 2
+
+
+@vectorize
+def isodd(el):
+    return el % 2
+
+def padarray(a, padsize, padval=0):
 
