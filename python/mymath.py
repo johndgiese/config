@@ -460,19 +460,22 @@ def meshgridn(*arrs):
 
 def dot(*arrays):
     """
-    Dot product of many arrays.
-    
+    Inner product of many arrays.
+
     For 2-D arrays it is equivalent to matrix multiplication, and for 1-D
     arrays it is the inner product without taking the complex conjugate.  For
     N-D arrays it is the sum of the product over the last two axis.
+
+    Note that unlike numpy's standard dot function, the conjugate is taken from
+    the first argument.
     """
     
     if len(arrays) < 2:
         raise TypeError("Need at least two matrices to multiply.") 
     
-    out = np.dot(arrays[0], arrays[1])
+    out = np.dot(conj(arrays[0]), arrays[1])
     for m in arrays[2:]:
-        out = np.dot(out, m)
+        out = np.dot(conj(out), m)
     return out
 
 

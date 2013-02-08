@@ -140,7 +140,7 @@ PS1='\[\e]0;\w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\
 
 ## mac stuff
 
-if [ $(uname) != "Linux" ]; then
+if [ $(uname) = "Darwin" ]; then
     # macvim instead of graphical vim
     alias gvim="mvim"
 
@@ -148,3 +148,5 @@ if [ $(uname) != "Linux" ]; then
     # fall before /use/bin
     export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/share/python:$PATH
 fi
+
+export EDITOR=vim

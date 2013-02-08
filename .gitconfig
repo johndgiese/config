@@ -7,4 +7,6 @@
     status = true
     branch = true
 [credential]
-	helper = cache --timeout=7200
+	helper = cache --timeout=72000
+[core]
+	editor = vim
