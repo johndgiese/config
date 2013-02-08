@@ -36,6 +36,31 @@ def autocorr(a):
     return corr(a, a)
 
 
+def linescan(img, start, stop, npoints, method='cubic'):
+    """
+    Extract line scan from an image.
+
+    Points outside the image indices are set to the mean of the image.
+    
+    Arguments:
+    img - the image being interpolated on
+    start - tuple specifying the start indices
+    stop - tuple specifying the end indices
+    npoints - the number of points in the linescan
+    method - the kind of interpolation {'linear', 'nearest', 'cubic'}
+    """
+    nx, ny = img.shape
+    x = linspace(start[0], stop[0], npoints)
+    y = linspace(start[1], stop[1], npoints)
+
+    x_grid = arange(nx)
+    y_grid = arange(ny)
+    x_grid, y_grid = meshgrid(x_grid, y_grid)
+    points = zip(x_grid.flatten(), y_grid.flatten())
+    z = interpolate.griddata(points, img.flatten(), (x, y), method=method)
+    return x, y, z
+
+
 def register(img0, img1, upsample=1, transformed=False):
     """
     Efficiently register two images to a given fraction of a pixel.
@@ -163,6 +188,7 @@ def circular_shift(img, row_shift, col_shift, transformed=False):
     Y, X = meshgrid(y, x)
     shiftedft = imgft*exp(-(Y*col_shift + X*row_shift)*2j*pi)
     return ifft2(shiftedft)
+>>>>>>> 0efa76b294ab75294285eb4d27d584a3b904aa8b
 
 
 def interp_max(img, x=None, y=None, precision=10):
@@ -461,4 +487,6 @@ def isodd(el):
     return el % 2
 
 def padarray(a, padsize, padval=0):
+    d = a.shape
+    out = zeros(d + padsize)
 
