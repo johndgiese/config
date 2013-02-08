@@ -188,7 +188,6 @@ def circular_shift(img, row_shift, col_shift, transformed=False):
     Y, X = meshgrid(y, x)
     shiftedft = imgft*exp(-(Y*col_shift + X*row_shift)*2j*pi)
     return ifft2(shiftedft)
->>>>>>> 0efa76b294ab75294285eb4d27d584a3b904aa8b
 
 
 def interp_max(img, x=None, y=None, precision=10):
