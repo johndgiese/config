@@ -33,6 +33,31 @@ def autocorr(a):
     """Circular autocorrelation using fourier transform."""
     return corr(a, a)
 
+def linescan(img, start, stop, npoints, method='cubic'):
+    """
+    Extract line scan from an image.
+
+    Points outside the image indices are set to the mean of the image.
+    
+    Arguments:
+    img - the image being interpolated on
+    start - tuple specifying the start indices
+    stop - tuple specifying the end indices
+    npoints - the number of points in the linescan
+    method - the kind of interpolation {'linear', 'nearest', 'cubic'}
+    """
+    nx, ny = img.shape
+    x = linspace(start[0], stop[0], npoints)
+    y = linspace(start[1], stop[1], npoints)
+
+    x_grid = arange(nx)
+    y_grid = arange(ny)
+    x_grid, y_grid = meshgrid(x_grid, y_grid)
+    points = zip(x_grid.flatten(), y_grid.flatten())
+    z = interpolate.griddata(points, img.flatten(), (x, y), method=method)
+    return x, y, z
+
+
 def interp_max(img, x=None, y=None, precision=10):
     """
     Find the maximum value in an image using cubic interpolation.
