@@ -5,6 +5,15 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
+platform='unknown'
+if [ $(uname) == 'Linux' ]; then
+    platform='linux'
+elif [ $(uname) == 'Darwin' ]; then
+    platform='mac'
+else
+    platform='windows'
+fi
+
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
@@ -88,6 +97,7 @@ alias l='ls -CF'
 
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
+export EDITOR=vim
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -110,7 +120,9 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
 fi
 
 # avoid problems with git and unity
-function gvim() {(/usr/bin/gvim -f "$@" &)}
+if [ $platform == 'linux' ]; then
+    function gvim() {(/usr/local/gvim -f "$@" &)}
+fi
 
 function op() {
     for var in "$@"
@@ -121,9 +133,8 @@ function op() {
 
 alias ack="ack-grep"
 
-# web-development
+## web-development
 alias chrome="chromium-browser"
-export DJANGO_SETTINGS_MODULE=settings
 alias dj="python manage.py $@"
 function djrs() {
     python manage.py runserver 8000 
@@ -132,15 +143,11 @@ function djb() {
     chromium-browser http://127.0.0.1:8000
 }
 
-# paths stuff
-export PYTHONPATH=$PYTHONPATH:~/python:~/python/komodo
-
 # better command prompt
 PS1='\[\e]0;\w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\]\$ '
 
 ## mac stuff
-
-if [ $(uname) = "Darwin" ]; then
+if [ $platform == 'mac' ]; then
     # macvim instead of graphical vim
     alias gvim="mvim"
 
@@ -149,4 +156,3 @@ if [ $(uname) = "Darwin" ]; then
     export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/share/python:$PATH
 fi
 
-export EDITOR=vim
