@@ -1,3 +1,6 @@
 [submodule "c/mcml"]
 	path = c/mcml
 	url = https://github.com/johndgiese/mcml.git
+[submodule "Code/C/mcml"]
+	path = Code/C/mcml
+	url = https://github.com/johndgiese/mcml.git
