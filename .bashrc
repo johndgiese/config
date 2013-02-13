@@ -98,6 +98,7 @@ alias l='ls -CF'
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 export EDITOR=vim
+export PYTHONPATH=~/Code/Python:$PYTHONPATH
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -121,7 +122,7 @@ fi
 
 # avoid problems with git and unity
 if [ $platform == 'linux' ]; then
-    function gvim() {(/usr/local/gvim -f "$@" &)}
+    function gvim() {(/usr/bin/gvim -f "$@" &)}
 fi
 
 function op() {
