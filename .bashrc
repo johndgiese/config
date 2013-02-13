@@ -95,7 +95,7 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
-export CLICOLOR=1
+export CLICOLOR=yes
 export LSCOLORS=ExFxBxDxCxegedabagacad
 export EDITOR=vim
 export PYTHONPATH=~/Code/Python:$PYTHONPATH
