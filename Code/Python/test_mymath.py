@@ -1,14 +1,27 @@
 import unittest
 
+# I am slowly transitioning to using proper namespacing
 from pylab import *
 import pylab as pl
 import scipy
+import numpy as np
 
 import mymath as m
 
 PLOTTING = False
 
-class TestFwhm(unittest.TestCase):
+class NumericTestCase(unittest.TestCase):
+    """Test case with assertions for numeric computing."""
+
+    def assertArraysClose(self, a, b):
+        """Check that the two arrays are almost equal."""
+        arrays_close = np.allclose(a, b)
+
+        if not arrays_close:
+            msg = "The arrays\n%s\n and \n%s\n are not nearly equal." % (str(a), str(b))
+            raise self.failureException(msg)
+
+class TestFwhm(NumericTestCase):
 
     def setUp(self):
         self.x = arange(10)
@@ -29,7 +42,7 @@ class TestFwhm(unittest.TestCase):
         gaus_fwhm = 2*sqrt(2*log(2))*sigma
         self.assertAlmostEqual(fwhm, gaus_fwhm, places=3)
 
-class TestCorr(unittest.TestCase):
+class TestCorr(NumericTestCase):
 
     def test_autocorr(self):
         A = rand(10, 15)
@@ -43,7 +56,57 @@ class TestCorr(unittest.TestCase):
         C = m.corr(A, B)
         self.assertTrue((abs(C) <= 1.000000001).all())
 
-class TestInterpMax(unittest.TestCase):
+class TestZpadf(NumericTestCase):
+
+    def test_1d(self):
+        a = array([1.0, 1.0])
+        za = array([1.0, 0.5, 0, 0.5])
+        self.assertArraysClose(za, m.zpadf(a, 2))
+        self.assertArraysClose(za, m.zpadf(a, (2,)))
+
+
+        a = array([1.0, 2, 3])
+        za = array([1, 2, 0, 0, 3])
+        self.assertArraysClose(za, m.zpadf(a, 2))
+
+        a = array([1.0, 2, 3, 4])
+        za = array([1, 2, 1.5, 0, 1.5, 4])
+        self.assertArraysClose(za, m.zpadf(a, 2))
+
+        a = array([1.0, 2, 3, 4])
+        za = array([1, 2, 1.5, 0, 0, 1.5, 4])
+        self.assertArraysClose(za, m.zpadf(a, 3))
+
+    def test_2d(self):
+        a = array([
+            [1.0, 2], 
+            [3, 8]
+        ])
+        za = array([
+            [1,   1, 0, 1], 
+            [1.5, 2, 0, 2],
+            [0,   0, 0, 0],
+            [1.5, 2, 0, 2]
+        ])
+        self.assertArraysClose(za, m.zpadf(a, 2))
+        self.assertArraysClose(za, m.zpadf(a, (2, 2)))
+
+        za = array([
+            [1,   2], 
+            [1.5, 4],
+            [0,   0],
+            [1.5, 4]
+        ])
+        self.assertArraysClose(za, m.zpadf(a, (2, 0)))
+
+        za = array([
+            [1,   1, 0, 1], 
+            [3,   4, 0, 4],
+        ])
+        self.assertArraysClose(za, m.zpadf(a, (0, 2)))
+
+
+class TestInterpMax(NumericTestCase):
 
     def test_closest_in_grid(self):
         x, y = m.closest_in_grid(2, 3, 0, 0)
@@ -92,7 +155,8 @@ class TestInterpMax(unittest.TestCase):
         self.assertAlmostEqual(xx, xm, places=expected_places)
         self.assertAlmostEqual(yy, ym, places=expected_places)
 
-class TestRegister(unittest.TestCase):
+@unittest.skip("not done writing this code")
+class TestRegister(NumericTestCase):
 
     def setUp(self):
         self.img0 = scipy.misc.lena()
@@ -140,7 +204,9 @@ class TestRegister(unittest.TestCase):
         self.assertEqual(row, self.row_shift)
         self.assertEqual(col, self.col_shift)
 
-class TestDFTUpsample(unittest.TestCase):
+
+@unittest.skip("working on something else")
+class TestDFTUpsample(NumericTestCase):
 
     def test_equivalence(self):
         """
@@ -156,7 +222,7 @@ class TestDFTUpsample(unittest.TestCase):
         # pick random odd upsampling
         upsample = randint(1, 16)
         upsample = 4
-        if iseven(upsample):
+        if m.iseven(upsample):
             half = int((upsample - 1)/2.0)
         else:
             half = int(upsample/2.0) - 1
@@ -224,7 +290,7 @@ class TestDFTUpsample(unittest.TestCase):
         # are they the same (within a multiplier)
         b_slow = b_slow/mean(abs(b_slow))
         b_fast = b_fast/mean(abs(b_fast))
-        self.assertTrue(np.allclose(b_slow, b_fast))
+        self.assertArraysClose(b_slow, b_fast)
 
     def test_normalization(self):
         """The function should be properly normalized."""
@@ -252,7 +318,9 @@ class TestDFTUpsample(unittest.TestCase):
                    [1, 1j, -1, -1j],
                    [1, -1, 1, -1],
                    [1, -1j, -1, 1j]])
-        self.assertTrue(np.allclose(ifft2(a), m.dot(F, a, F)/nx/ny))
+        self.assertArraysClose(ifft2(a), m.dot(F, a, F)/nx/ny)
+
+
 
 if __name__ == '__main__':
     unittest.main()
