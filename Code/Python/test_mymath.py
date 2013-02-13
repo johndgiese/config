@@ -205,7 +205,6 @@ class TestRegister(NumericTestCase):
         self.assertEqual(col, self.col_shift)
 
 
-@unittest.skip("working on something else")
 class TestDFTUpsample(NumericTestCase):
 
     def test_equivalence(self):
