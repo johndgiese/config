@@ -123,6 +123,9 @@ fi
 # avoid problems with git and unity
 if [ $platform == 'linux' ]; then
     function gvim() {(/usr/bin/gvim -f "$@" &)}
+elif [ $platform == 'mac' ]; then
+    # macvim instead of graphical vim
+    alias gvim="mvim"
 fi
 
 # open function
@@ -161,8 +164,6 @@ PS1='\[\e]0;\w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\
 
 ## mac stuff
 if [ $platform == 'mac' ]; then
-    # macvim instead of graphical vim
-    alias gvim="mvim"
 
     # homebrew installs stuff in /usr/local/bin, thus we need this directory to
     # fall before /use/bin
