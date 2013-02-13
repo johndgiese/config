@@ -124,15 +124,28 @@ fi
 if [ $platform == 'linux' ]; then
     function gvim() {(/usr/bin/gvim -f "$@" &)}
 elif [ $platform == 'mac' ]; then
+    # macvim instead of graphical vim
     alias gvim="mvim"
 fi
 
-function op() {
-    for var in "$@"
-    do
-        xdg-open "$var"
-    done
-}
+# open function
+if [ $platform == 'linux' ]; then
+    function op() {
+        for var in "$@"
+        do
+            xdg-open "$var"
+        done
+    }
+elif [ $platform == 'mac' ]; then
+    alias op="open"
+else
+    function op() {
+        for var in "$@"
+        do
+            start "$var"
+        done
+    }
+fi
 
 alias ack="ack-grep"
 
