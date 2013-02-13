@@ -1,5 +1,6 @@
 from os.path import exists, splitext
 from re import search
+import itertools
 
 from numpy import array
 from pylab import * # TODO: eventually only use necessary imports
@@ -7,6 +8,9 @@ from scipy import interpolate
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import splrep, sproot, splev
 import numpy as np
+
+# TODO: move this back to its PEP8 spot once done switching to np.*
+import copy
 
 class MultiplePeaks(Exception): pass
 class NoPeaksFound(Exception): pass
@@ -173,6 +177,56 @@ def upsampled_idft2(a, upsample, height, width, top, left):
     norm = rows_a*cols_a
 
     return dot(kernr, a, kernc)/norm
+
+def zpadf(A, zeros):
+    """
+    Zeropad in the frequency domain.
+
+    Arguments
+    ---------
+    A : array to be padded (the zero-frequency should be at [0, 0])
+    zeros : either an int indicating the amount of padding along each dimension, or
+        a tuple indicating the number of zeros to be padded along each dimension
+    """
+
+    halfs = [int(h/2) for h in A.shape]
+    new_shape = A.shape + array(zeros)
+    dim = len(new_shape)
+
+    out = np.zeros(new_shape, dtype=A.dtype)
+
+    # iterate over the corners of the n-dim array
+    for vert in itertools.product((1, 0), repeat=dim):
+        indices = []
+
+        # create proper slice for each dimension
+        for h, front, odd in zip(halfs, vert, isodd(A.shape)):
+            if front:
+                if odd:
+                    ind = slice(0, h + 1)
+                else:
+                    ind = slice(0, h)
+            else:
+                ind = slice(-h, None)
+            indices.append(ind)
+        
+        # grab corner data from original and place in zeropadded
+        out[indices] = A[indices]
+
+    # even-length dimensions require care because the old nyquest frequency had
+    # only a single element to keep the transform balanced, the nyquist
+    # frequency needs to be split in two
+    whole_array = [slice(None) for s in new_shape]
+    for dim, h, s, sn in zip(range(len(halfs)), halfs, A.shape, new_shape):
+        if iseven(s) and sn > s:
+            old_nyquist_top = copy.copy(whole_array)
+            old_nyquist_top[dim] = -h
+            old_nyquist_bot = copy.copy(whole_array)
+            old_nyquist_bot[dim] = h
+
+            out[old_nyquist_top] = out[old_nyquist_top]/2.0
+            out[old_nyquist_bot] = out[old_nyquist_top]
+    return out
 
 
 def circular_shift(img, row_shift, col_shift, transformed=False):
@@ -474,21 +528,29 @@ def dot(*arrays):
         raise TypeError("Need at least two matrices to multiply.") 
     
     out = np.dot(conj(arrays[0]), arrays[1])
-    for m in arrays[2:]:
-        out = np.dot(conj(out), m)
+    for a in arrays[2:]:
+        out = np.dot(conj(out), a)
     return out
 
 
 @vectorize
-def iseven(el):
+def viseven(el):
     return 1 - el % 2
+
+def iseven(el):
+    if type(el) in [int, float]:
+        return 1 - el % 2
+    else:
+        return viseven(el)
 
 
 @vectorize
-def isodd(el):
+def visodd(el):
     return el % 2
 
-def padarray(a, padsize, padval=0):
-    d = a.shape
-    out = zeros(d + padsize)
+def isodd(el):
+    if type(el) in [int, float]:
+        return el % 2
+    else:
+        return visodd(el)
 
