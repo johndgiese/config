@@ -209,6 +209,7 @@ class TestRegister(NumericTestCase):
         self.assertEqual(row, self.row_shift)
         self.assertEqual(col, self.col_shift)
 
+
 class TestDFTUpsample(NumericTestCase):
 
     def setUp(self):

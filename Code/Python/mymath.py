@@ -296,12 +296,12 @@ def interp_max(img, x=None, y=None, precision=10):
     """
     nx, ny = img.shape
     if x == None:
-        x = arange(nx)
+        x = np.arange(nx)
     if y == None:
-        y = arange(ny)
+        y = np.arange(ny)
 
     # find max of current image
-    xmax, ymax = unravel_index(argmax(img), img.shape)
+    xmax, ymax = np.unravel_index(argmax(img), img.shape)
 
     # create subimg centered around the maximum
     xe, ye = closest_in_grid(nx, ny, xmax + 5, ymax + 5)
