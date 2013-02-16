@@ -95,7 +95,7 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
-export CLICOLOR=1
+export CLICOLOR=yes
 export LSCOLORS=ExFxBxDxCxegedabagacad
 export EDITOR=vim
 export PYTHONPATH=~/Code/Python:$PYTHONPATH
@@ -123,14 +123,29 @@ fi
 # avoid problems with git and unity
 if [ $platform == 'linux' ]; then
     function gvim() {(/usr/bin/gvim -f "$@" &)}
+elif [ $platform == 'mac' ]; then
+    # macvim instead of graphical vim
+    alias gvim="mvim"
 fi
 
-function op() {
-    for var in "$@"
-    do
-        xdg-open "$var"
-    done
-}
+# open function
+if [ $platform == 'linux' ]; then
+    function op() {
+        for var in "$@"
+        do
+            xdg-open "$var"
+        done
+    }
+elif [ $platform == 'mac' ]; then
+    alias op="open"
+else
+    function op() {
+        for var in "$@"
+        do
+            start "$var"
+        done
+    }
+fi
 
 alias ack="ack-grep"
 
@@ -149,9 +164,6 @@ PS1='\[\e]0;\w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\
 
 ## mac stuff
 if [ $platform == 'mac' ]; then
-    # macvim instead of graphical vim
-    alias gvim="mvim"
-
     # homebrew installs stuff in /usr/local/bin, thus we need this directory to
     # fall before /use/bin
     export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/share/python:$PATH
