@@ -12,6 +12,8 @@ import numpy as np
 # TODO: move this back to its PEP8 spot once done switching to np.*
 import copy
 
+PLOTTING = False
+
 class MultiplePeaks(Exception): pass
 class NoPeaksFound(Exception): pass
 
@@ -132,7 +134,8 @@ def register(img0, img1, upsample=1, transformed=False):
         b = upsampled_idft2(a, upsample, height, width, top, left)
         b = abs(b) # removing leftover imaginary part
 
-        imshow(b); figure(); imshow(img0); show()
+        if PLOTTING:
+            imshow(b); figure(); imshow(img0); show()
 
         # use upsampled idft to find max in terms of the original images pixels
         sub_row, sub_col = unravel_index(argmax(b), b.shape)
@@ -228,20 +231,51 @@ def zpadf(A, zeros):
             out[old_nyquist_bot] = out[old_nyquist_top]
     return out
 
+def _linphase(N, shift):
+    N = double(N)
+    k = linspace(0, 1, N, endpoint=False)
+    linphase = empty(N, dtype="complex")
+    linphase[k < 0.5] = exp(-2j*pi*shift*k[k < 0.5])
+    linphase[k > 0.5] = exp(-2j*pi*shift*(k[k > 0.5] - 1.0))
+    linphase[k == 0.5] = cos(2*pi*shift/2)
+    return linphase
 
-def circular_shift(img, row_shift, col_shift, transformed=False):
-    """Subpixel shift an image using the Fourier-shift theorem."""
+
+def circshift(a, shift, transformed=False):
+    """
+    Circular subpixel shift a 1D array.
+    
+    Algorithm uses the Fourier-shift theorem with minimal-slope interpolation.
+
+    Arguments
+    _________
+    a : complex ndarray
+        Array to be circularly shifted.
+    shift : int, or list of shifts if multidimensional
+        Number of pixels to be shifted along each dimension (can be fractional)
+    transformed : boolean
+        Has the array already been transformed. Default is False.
+    """
+    if type(shift) == int:
+        shift = [shift]
 
     if not transformed:
-        imgft = fft2(img)
+        aft = fftn(a)
     else:
-        imgft = img
-    nx, ny = imgft.shape
-    x = linspace(0, 1, nx, endpoint=False)
-    y = linspace(0, 1, ny, endpoint=False)
-    Y, X = meshgrid(y, x)
-    shiftedft = imgft*exp(-(Y*col_shift + X*row_shift)*2j*pi)
-    return ifft2(shiftedft)
+        aft = a
+
+    shape = a.shape
+    dim = len(shape)
+    linphases = []
+    for s, N in zip(shift, shape):
+        linphases.append(_linphase(N, s))
+    linphase = outer(*linphases)
+
+    ashifted = ifftn(aft*linphase)
+    if not transformed and not a.dtype.kind == 'c':
+        ashifted = real(ashifted)
+    return ashifted
+
 
 
 def interp_max(img, x=None, y=None, precision=10):
@@ -513,24 +547,32 @@ def meshgridn(*arrs):
 
 
 def dot(*arrays):
-    """
-    Inner product of many arrays.
-
-    For 2-D arrays it is equivalent to matrix multiplication, and for 1-D
-    arrays it is the inner product without taking the complex conjugate.  For
-    N-D arrays it is the sum of the product over the last two axis.
-
-    Note that unlike numpy's standard dot function, the conjugate is taken from
-    the first argument.
-    """
+    """Inner product of many arrays."""
     
     if len(arrays) < 2:
         raise TypeError("Need at least two matrices to multiply.") 
     
-    out = np.dot(conj(arrays[0]), arrays[1])
+    out = np.dot(arrays[0], arrays[1])
     for a in arrays[2:]:
-        out = np.dot(conj(out), a)
+        out = np.dot(out, a)
     return out
+
+def outer(*arrays):
+    """Tensor product of many arrays."""
+    
+    if len(arrays) < 2:
+        raise TypeError("Need at least two matrices to multiply.") 
+    
+    out = np.outer(arrays[1], arrays[0])
+    for a in arrays[2:]:
+        out = np.outer(a, out)
+
+    
+    final_shape = []
+    for a in arrays:
+        final_shape.extend(list(a.shape))
+
+    return reshape(out, final_shape)
 
 
 @vectorize
