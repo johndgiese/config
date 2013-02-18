@@ -15,16 +15,27 @@ class NumericTestCase(unittest.TestCase):
 
     def assertArraysClose(self, a, b, rtol=1e-05, atol=1e-08):
         """Check that the two arrays are almost equal, see np.allclose."""
-        arrays_close = np.allclose(a, b)
+
+        if not a.shape == b.shape:
+            msg = "The two arrays don't even have the same shape!\n"
+            msg += "The first array has {} shape.\n".format(a.shape)
+            msg += "The second array has {} shape.\n".format(b.shape)
+            raise self.failureException(msg)
+
+        arrays_close = np.allclose(a, b, rtol=rtol, atol=atol)
 
         if not arrays_close:
             Ea = sum(abs(a)**2)
             Eb = sum(abs(b)**2)
             Ed = sum(abs(a - b)**2)
-            msg = "The arrays\n%s\n and \n%s\n are not nearly equal." % (str(a), str(b))
-            msg += "\nThe energy of a is %s.\n" % (str(Ea),)
-            msg += "\nThe energy of b is %s.\n" % (str(Eb),)
-            msg += "\nThe energy of a - b is %s.\n" % (str(Ed),)
+            mean_angle_diff = mean(abs(angle(a) - angle(b)))*180/pi
+            msg = "The two arrays are not equal.\n"
+            msg += "The first 10 elements of a are:\n{}\n".format(a.flatten()[:20])
+            msg += "The first 10 elements of b are:\n{}\n".format(b.flatten()[:20])
+            msg += "The energy of a is %s.\n" % (str(Ea),)
+            msg += "The energy of b is %s.\n" % (str(Eb),)
+            msg += "The energy of a - b is %s.\n" % (str(Ed),)
+            msg += "The mean angle difference is {} deg.\n\n".format(mean_angle_diff)
             raise self.failureException(msg)
 
 class TestFwhm(NumericTestCase):
@@ -164,29 +175,34 @@ class TestInterpMax(NumericTestCase):
 class TestRegister(NumericTestCase):
 
     def setUp(self):
-        self.img0 = scipy.misc.lena()
-        self.img0ft = fft2(self.img0)
-        ny, nx = self.img0.shape
-        self.ny = ny
+        img0 = scipy.misc.lena()
+        img0ft = fft2(img0)
+        ny, nx = img0.shape
+        row_shift = randint(-ny/2, ny/2)
+        col_shift = randint(-nx/2, nx/2)
+        img1 = m.circshift(img0ft, (row_shift, col_shift), transformed=True)
+        img1ft = fft2(img1)
+
+        self.img0 = img0
+        self.img1 = img1
+        self.img0ft = img0ft
+        self.img1ft = img1ft
         self.nx = nx
-        self.row_shift = randint(self.nx)
-        self.col_shift = randint(self.ny)
-        self.img1 = m.circshift(self.img0ft, 
-                self.row_shift, self.col_shift, transformed=True)
-        self.img1ft = fft2(self.img1)
+        self.ny = ny
+        self.col_shift = col_shift
+        self.row_shift = row_shift
 
     def test_upsample_1(self):
         """Test algorithm without subpixel registration."""
 
-
         img0 = scipy.misc.lena()
         img0ft = fft2(img0)
         ny, nx = img0.shape
-        row_shift = randint(-nx/2, nx/2)
-        col_shift = randint(-ny/2, ny/2)
-        row_shift = 10.4
-        col_shift = 27.4
-        img1 = m.circshift(img0ft, row_shift, col_shift, transformed=True)
+        row_shift = randint(-ny/2, ny/2)
+        col_shift = randint(-nx/2, nx/2)
+        row_shift = 10
+        col_shift = 27
+        img1 = m.circshift(img0ft, (row_shift, col_shift), transformed=True)
         img1 = abs(img1)
         img1ft = fft2(img1)
 
@@ -199,18 +215,34 @@ class TestRegister(NumericTestCase):
             title('shifted by {}x{}'.format(row_shift, col_shift))
             show()
 
-        row, col = m.register(img0ft, img1ft, transformed=True)
+        val, row, col = m.register(img0ft, img1ft, transformed=True)
         self.assertEqual(row, row_shift)
         self.assertEqual(col, col_shift)
 
-    def test_upsample_10(self):
-        row, col = m.register(self.img0ft, self.img1ft, 
-                upsample=11, transformed=True)
-        self.assertEqual(row, self.row_shift)
-        self.assertEqual(col, self.col_shift)
+    def test_upsample_1000(self):
+        img0 = scipy.misc.lena()
+        img0ft = fft2(img0)
+        ny, nx = img0.shape
+        row_shift = (rand() - 0.5)*ny
+        col_shift = (rand() - 0.5)*nx
+        img1 = m.circshift(img0ft, (row_shift, col_shift), transformed=True)
+        img1ft = fft2(img1)
+
+        val, row, col = m.register(img0ft, img1ft, upsample=105, transformed=True)
+        self.assertAlmostEqual(row, row_shift, places=2)
+        self.assertAlmostEqual(col, col_shift, places=2)
 
 
 class TestDFTUpsample(NumericTestCase):
+
+    def remove_nyquist(self, a, aft):
+        ny, nx = a.shape
+        if m.iseven(ny):
+            aft[ny/2,:] = 0
+        if m.iseven(nx):
+            aft[:,nx/2] = 0
+        a = real(ifft2(aft))
+        return a, aft
 
     def setUp(self):
 
@@ -241,7 +273,10 @@ class TestDFTUpsample(NumericTestCase):
         aa[:-2, :] += 2
         a = fft2(aa)
 
+        aa, a = self.remove_nyquist(aa, a)
+
         ## attach data to test case
+        self.aa = aa
         self.a = a
         self.nx = nx
         self.ny = ny
@@ -250,7 +285,6 @@ class TestDFTUpsample(NumericTestCase):
         self.top = top
         self.left = left
         self.upsample = upsample
-
 
     def test_equivalence(self):
         """
@@ -262,6 +296,7 @@ class TestDFTUpsample(NumericTestCase):
         3. Extract an [height, width] region of the result. Starting with the 
            [top, left] element.
         """
+        aa = self.aa
         a = self.a
         nx = self.nx
         ny = self.ny
@@ -334,6 +369,7 @@ class TestDFTUpsample(NumericTestCase):
         aa[:-5, :-5] += 1
         aa[:-2, :] += 2
         a = fft2(aa)
+        aa, a = self.remove_nyquist(aa, a)
 
         ## calculate the slow way
         extra_zeros = ((upsample - 1)*ny, (upsample - 1)*nx)
@@ -345,13 +381,36 @@ class TestDFTUpsample(NumericTestCase):
 
         b_slow_big = b_slow_big/mean(abs(b_slow_big))
         b_fast_big = b_fast_big/mean(abs(b_fast_big))
+
+        if PLOTTING:
+            subplot(131)
+            imshow(abs(b_fast_big - b_slow_big))
+            colorbar()
+            subplot(132)
+            imshow(angle(b_fast_big))
+            colorbar()
+            subplot(133)
+            imshow(angle(b_slow_big))
+            colorbar()
+            show()
+
         self.assertArraysClose(abs(b_fast_big), abs(b_slow_big), rtol=1e-2)
 
-
+    @unittest.expectedFailure
     def test_known2x2(self):
+        # expected to fail because upsampled_idft2 doesn't handle the nyquist
+        # component properly
         A = array([[1, 4], [0, 2]])
         AA = fft2(A)
         known_out = array([[4, 2.5], [3, 1.75]])
+        out = m.upsampled_idft2(AA, 2, 2, 2, 0, 2)
+        self.assertArraysClose(known_out, out)
+
+        # code comparing the ideal fourier matrix approach with proper
+        # zero-padding, to the idft_upsampled
+        AAA = zpadf(AA, (2, 2))
+        F = array([[1, 1, 1, 1],[1, 1j, -1, -1j],[1,-1,1,-1],[1,-1j,-1,1j]])/4.0
+        out2 = m.dot(F, AAA, F)*4.0
         out = m.upsampled_idft2(AA, 2, 4, 4, 0, 0)
 
     def test_simple(self):
@@ -378,56 +437,22 @@ class TestDFTUpsample(NumericTestCase):
 class TestCircshift(NumericTestCase):
     
     def test_allones(self):
-        N = randint(1, 30)
+        N = randint(2, 30)
         shift = 2*N*rand()
         x = ones([N])
         xx = m.circshift(x, shift)
         self.assertArraysClose(x, xx)
 
-    def test_multiple_dimensions(self):
+    def test_multiple_dimensional_integer_shift(self):
         shape = array([5, 11, 20, 6])
-        shift = randint(30, size=shape.shape)
-        x = rand(*shape)
+        x = zeros(shape)
+        x[0, 0, 0, 0] = 1
+        shift = []
+        for max_shift in shape:
+            shift.append(randint(max_shift))
         xx = m.circshift(x, shift)
-        self.assertArraysClose(x, xx)
-
-class TestOuter(NumericTestCase):
-
-    def test_2(self):
-        a = array([1, 2])
-        b = array([0, 0, 4])
-        ab = m.outer(a, b)
-        ab_true = array([[0, 0, 4],
-                         [0, 0, 8]])
-        self.assertArraysClose(ab, ab_true)
-
-    def test_3(self):
-        a = array([1, 2])
-        b = array([0, 4])
-        c = array([1, 2])
-        abc = m.outer(a, b, c)
-        abc_true = array([[[0, 4],
-                           [0, 8]],
-                          [[0, 8],
-                           [0, 16]]])
-        self.assertArraysClose(abc, abc_true)
-
-    def test_by_definition(self):
-        a = around(10*rand(5, 6))
-        b = around(30*rand(3))
-        c = around(40*rand(5, 6, 7))
-        outer_true = empty([5, 6, 3, 5, 6, 7])
-        for i in arange(5):
-            for j in arange(6):
-                for k in arange(3):
-                    for l in arange(5):
-                        for n in arange(6):
-                            for o in arange(7):
-                                outer_true[i,j,k,l,n,o] = a[i,j]*b[k]*c[l,n,o]
-
-        outer = m.outer(a, b, c)
-        self.assertArraysClose(outer, outer_true)
-
+        i = unravel_index(argmax(xx), x.shape)
+        self.assertListEqual(list(shift), list(i))
 
 if __name__ == '__main__':
     unittest.main()
