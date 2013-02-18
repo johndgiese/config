@@ -12,6 +12,8 @@ import numpy as np
 # TODO: move this back to its PEP8 spot once done switching to np.*
 import copy
 
+PLOTTING = False
+
 class MultiplePeaks(Exception): pass
 class NoPeaksFound(Exception): pass
 
@@ -84,29 +86,7 @@ def register(img0, img1, upsample=1, transformed=False):
         transformed - have the inputs been transformed?
     """
 
-    def peak_shift_from_index(img):
-        """
-        Determine the image shift from the correlation.
-
-        Because the correlation is taken in the fourier domain, it is a
-        "circular correlation," and thus a negative shift appears to wrap
-        around the other side of the correlation image; this function accounts
-        for this.  
-        
-        Note that if you have shifts greater than half the image size it is
-        ambiguous because of the circular nature of the correlation.  To simplify
-        the code, all shifts are assumed to be less than half the image
-        size.
-
-        Also note that the original images were assumed to be real.
-        """
-        ny, nx = img.shape
-        row, col = unravel_index(argmax(img), (ny, nx))
-        if row > floor(ny/2):
-            row = row - ny
-        if col > floor(nx/2):
-            col = col - nx
-        return row, col
+    ny, nx = img0.shape
 
     if not transformed:
         img0ft = fft2(img0)
@@ -115,34 +95,70 @@ def register(img0, img1, upsample=1, transformed=False):
         img0ft = img0
         img1ft = img1
 
-    ny, nx = img0ft.shape
-    corr_img = ifft2(img1ft*conj(img0ft))
-    corr_img = abs(corr_img) 
-    row_first_guess, col_first_guess = peak_shift_from_index(corr_img)
+    a_bconj_img = img1ft*conj(img0ft)
+    corr_img = abs(ifft2(a_bconj_img))
+    row_first_guess, col_first_guess = _peak_shift_from_index(corr_img)
 
     if upsample > 1:
         # define portion of image centered on the first guess
         side = 3.0
         height = width = ceil(side*upsample)
-        top = round((row_first_guess - side/2.0)*upsample)
-        left = round((col_first_guess - side/2.0)*upsample)
+        top = floor((row_first_guess - side/2.0)*upsample)
+        left = floor((col_first_guess - side/2.0)*upsample)
 
         # calculate zero-padded inverse dft on area around first guess
-        a = img1ft*conj(img0ft)
-        b = upsampled_idft2(a, upsample, height, width, top, left)
-        b = abs(b) # removing leftover imaginary part
+        upsampled_corr_img_roi = upsampled_idft2(a_bconj_img, upsample, 
+                height, width, top, left)
 
-        imshow(b); figure(); imshow(img0); show()
+        # removing leftover imaginary part
+        upsampled_corr_img_roi = abs(upsampled_corr_img_roi) 
+
+        if PLOTTING:
+            imshow(upsampled_corr_img_roi)
+            figure()
+            imshow(img0)
+            show()
 
         # use upsampled idft to find max in terms of the original images pixels
-        sub_row, sub_col = unravel_index(argmax(b), b.shape)
-        row_final_guess = (top  + sub_row)/upsample
-        col_final_guess = (left + sub_col)/upsample
+        roi_ind = argmax(upsampled_corr_img_roi)
+        roi_row, roi_col = unravel_index(roi_ind, upsampled_corr_img_roi.shape)
+        row_final_guess = float(top  + roi_row)/upsample
+        col_final_guess = float(left + roi_col)/upsample
+        value = amax(upsampled_corr_img_roi)
     else:
         row_final_guess = row_first_guess
         col_final_guess = col_first_guess
+        value = amax(corr_img)
 
-    return row_final_guess, col_final_guess
+    return value, row_final_guess, col_final_guess
+
+def _peak_shift_from_index(img):
+    """
+    Determine the image shift from the correlation.
+
+    Because the correlation is taken in the fourier domain, it is a
+    "circular correlation," and thus a negative shift appears to wrap
+    around the other side of the correlation image; this function accounts
+    for this.  
+    
+    Note that if you have shifts greater than half the image size it is
+    ambiguous because of the circular nature of the correlation.  To simplify
+    the code, all shifts are assumed to be less than half the image
+    size.
+
+    Also note that the original images were assumed to be real.
+    """
+    ny, nx = img.shape
+    row, col = unravel_index(argmax(img), (ny, nx))
+    if row > floor(ny/2):
+        row = row - ny
+    if col > floor(nx/2):
+        col = col - nx
+    if row < -floor(ny/2):
+        row = row + ny
+    if col < -floor(nx/2):
+        col = col + nx
+    return row, col
 
 
 def upsampled_idft2(a, upsample, height, width, top, left):
@@ -156,6 +172,9 @@ def upsampled_idft2(a, upsample, height, width, top, left):
     ift(input) --- of course there will be slight variations due to
     interpolatation.
 
+    NOTE: this function doesn't "properly" handle the nyquist frequency, so there
+    may be a small error but shouldn't matter for reasnobly large matrices.
+
     See G. Strang, Introduction to Linear Algebra, Section 10.3 for some
     explanation of the fourier matrices.
     """
@@ -163,20 +182,20 @@ def upsampled_idft2(a, upsample, height, width, top, left):
     rows_a, cols_a = a.shape
 
     # generate matrix that does the column inverse dft
-    wc = np.fft.fftfreq(cols_a)/upsample
-    wr = arange(left, left + width)
-    w = outer(wc, wr)
-    kernc = exp(2j*pi*w)
-
-    # generate matrix that does the row inverse dft
     wc = np.fft.fftfreq(rows_a)/upsample
     wr = arange(top, top + height)
     w = outer(wr, wc)
+    kernc = exp(2j*pi*w)
+
+    # generate matrix that does the row inverse dft
+    wc = np.fft.fftfreq(cols_a)/upsample
+    wr = arange(left, left + width)
+    w = outer(wc, wr)
     kernr = exp(2j*pi*w)
 
     norm = rows_a*cols_a
 
-    return dot(kernr, a, kernc)/norm
+    return dot(kernc, a, kernr)/norm
 
 def zpadf(A, zeros):
     """
@@ -228,20 +247,51 @@ def zpadf(A, zeros):
             out[old_nyquist_bot] = out[old_nyquist_top]
     return out
 
+def _linphase(N, shift):
+    N = double(N)
+    k = linspace(0, 1, N, endpoint=False)
+    linphase = empty(N, dtype="complex")
+    linphase[k < 0.5] = exp(-2j*pi*shift*k[k < 0.5])
+    linphase[k > 0.5] = exp(-2j*pi*shift*(k[k > 0.5] - 1.0))
+    linphase[k == 0.5] = cos(2*pi*shift/2)
+    return linphase
 
-def circular_shift(img, row_shift, col_shift, transformed=False):
-    """Subpixel shift an image using the Fourier-shift theorem."""
+
+def circshift(a, shift, transformed=False):
+    """
+    Circular subpixel shift a 1D array.
+    
+    Algorithm uses the Fourier-shift theorem with minimal-slope interpolation.
+
+    Arguments
+    _________
+    a : complex ndarray
+        Array to be circularly shifted.
+    shift : int, or list of shifts if multidimensional
+        Number of pixels to be shifted along each dimension (can be fractional)
+    transformed : boolean
+        Has the array already been transformed. Default is False.
+    """
+    if type(shift) in [int, float]:
+        shift = [shift]
 
     if not transformed:
-        imgft = fft2(img)
+        aft = fftn(a)
     else:
-        imgft = img
-    nx, ny = imgft.shape
-    x = linspace(0, 1, nx, endpoint=False)
-    y = linspace(0, 1, ny, endpoint=False)
-    Y, X = meshgrid(y, x)
-    shiftedft = imgft*exp(-(Y*col_shift + X*row_shift)*2j*pi)
-    return ifft2(shiftedft)
+        aft = a
+
+    shape = a.shape
+
+    dim = len(shape)
+    linphases = []
+    for s, N in zip(shift, shape):
+        linphases.append(_linphase(N, s))
+    linphase = outer(*linphases)
+
+    ashifted = ifftn(aft*linphase)
+    if not transformed and not a.dtype.kind == 'c':
+        ashifted = real(ashifted)
+    return ashifted
 
 
 def interp_max(img, x=None, y=None, precision=10):
@@ -513,25 +563,12 @@ def meshgridn(*arrs):
 
 
 def dot(*arrays):
-    """
-    Inner product of many arrays.
+    """Inner product of many arrays."""
+    return reduce(np.dot, arrays)
 
-    For 2-D arrays it is equivalent to matrix multiplication, and for 1-D
-    arrays it is the inner product without taking the complex conjugate.  For
-    N-D arrays it is the sum of the product over the last two axis.
-
-    Note that unlike numpy's standard dot function, the conjugate is taken from
-    the first argument.
-    """
-    
-    if len(arrays) < 2:
-        raise TypeError("Need at least two matrices to multiply.") 
-    
-    out = np.dot(conj(arrays[0]), arrays[1])
-    for a in arrays[2:]:
-        out = np.dot(conj(out), a)
-    return out
-
+def outer(*arrays):
+    """Tensor product of many arrays."""
+    return reduce(np.multiply.outer, arrays)
 
 @vectorize
 def viseven(el):
