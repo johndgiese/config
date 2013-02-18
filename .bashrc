@@ -5,6 +5,7 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
+
 platform='unknown'
 if [ $(uname) == 'Linux' ]; then
     platform='linux'
@@ -12,6 +13,7 @@ elif [ $(uname) == 'Darwin' ]; then
     platform='mac'
 else
     platform='windows'
+    export TERM='cygwin'
 fi
 
 # don't put duplicate lines or lines starting with space in the history.
