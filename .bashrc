@@ -100,7 +100,10 @@ alias l='ls -CF'
 export CLICOLOR=yes
 export LSCOLORS=ExFxBxDxCxegedabagacad
 export EDITOR=vim
-export PYTHONPATH=~/Code/Python:$PYTHONPATH
+
+if [ $platform != 'windows' ]; then
+    export PYTHONPATH=~/Code/Python;$PYTHONPATH
+fi
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
