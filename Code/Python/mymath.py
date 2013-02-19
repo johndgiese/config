@@ -67,36 +67,62 @@ def linescan(img, start, stop, npoints, method='cubic'):
     return x, y, z
 
 
-def register(img0, img1, upsample=1, transformed=False):
+def register(img0, img1, upsample=1, pre_calculated=False):
     """
-    Efficiently register two images to a given fraction of a pixel.
+    Efficiently register two real images to a given fraction of a pixel.
 
     The upsampling determines the precision of the registration; for example,
     and upsampling of 10 will register the images to within 1/10th of a pixel.
+
+    If you are registering many images with a single 'reference' image, then
+    it is inefficient to transform and normalize the reference image for each
+    registration.  The function is usually used as such
+
+    >>> v, y, x = register(img0, img1, upsample=10)
+
+    but the following is equivalent
+
+    >>> img0ft = fft2((img0 - mean(img0))/std(img0))
+    >>> v, y, x = register(img0ft, img1, upsample=10, pre_calculated=True)
 
     The algorithm is based off of the following citation:
         Manuel Guizar-Sicairos, Samuel T. Thurman, and James R. Fienup, 
         "Efficient subpixel image registration algorithms," Opt. Lett. 33, 
         156-158 (2008).
 
-    Arguments:
-        img0 - first image (or its fft, not fftshifted)
-        img1 - second image (or its fft)
-        upsample - amount of upsampling
-        transformed - have the inputs been transformed?
+    Arguments
+    ---------
+        img0 : first image (or its fft, not fftshifted)
+        img1 : second image (or its fft)
+        upsample : amount of upsampling
+        pre_calculated : if True, assumes that img0 is already transformed and
+            standardized (subtract mean, divide by std)
+
+    Returns
+    -------
+        value : absolute value of the correlation between img0 and img1 after
+            being shifted back; 1 if perfect correlation 0 is no correlation.  Note
+            that there are not negative correlations.  
+        row_shift : shift of img1
+        relative to img0 along first dimnsion
+        col_shift : shift of img1 relative to img0 along second dimension
     """
 
     ny, nx = img0.shape
 
-    if not transformed:
+    if not pre_calculated:
         img0ft = fft2(img0)
-        img1ft = fft2(img1)
+        img0ft[0, 0] = 0
+        img0ft = img0ft/std(img0)
     else:
         img0ft = img0
-        img1ft = img1
+
+    img1ft = fft2(img1)
+    img1ft[0, 0] = 0
+    img1ft = img1ft/std(img1)
 
     a_bconj_img = img1ft*conj(img0ft)
-    corr_img = abs(ifft2(a_bconj_img))
+    corr_img = real(ifft2(a_bconj_img))
     row_first_guess, col_first_guess = _peak_shift_from_index(corr_img)
 
     if upsample > 1:
@@ -111,7 +137,7 @@ def register(img0, img1, upsample=1, transformed=False):
                 height, width, top, left)
 
         # removing leftover imaginary part
-        upsampled_corr_img_roi = abs(upsampled_corr_img_roi) 
+        upsampled_corr_img_roi = real(upsampled_corr_img_roi) 
 
         if PLOTTING:
             imshow(upsampled_corr_img_roi)
@@ -120,15 +146,16 @@ def register(img0, img1, upsample=1, transformed=False):
             show()
 
         # use upsampled idft to find max in terms of the original images pixels
-        roi_ind = argmax(upsampled_corr_img_roi)
+        roi_ind = argmax(abs(upsampled_corr_img_roi))
         roi_row, roi_col = unravel_index(roi_ind, upsampled_corr_img_roi.shape)
         row_final_guess = float(top  + roi_row)/upsample
         col_final_guess = float(left + roi_col)/upsample
-        value = amax(upsampled_corr_img_roi)
+        value = upsampled_corr_img_roi[roi_row, roi_col]
     else:
         row_final_guess = row_first_guess
         col_final_guess = col_first_guess
-        value = amax(corr_img)
+        value = corr_img[row_final_guess, col_final_guess]
+    value = value/nx/ny
 
     return value, row_final_guess, col_final_guess
 
@@ -149,7 +176,7 @@ def _peak_shift_from_index(img):
     Also note that the original images were assumed to be real.
     """
     ny, nx = img.shape
-    row, col = unravel_index(argmax(img), (ny, nx))
+    row, col = unravel_index(abs(argmax(img)), (ny, nx))
     if row > floor(ny/2):
         row = row - ny
     if col > floor(nx/2):
@@ -253,9 +280,8 @@ def _linphase(N, shift):
     linphase = empty(N, dtype="complex")
     linphase[k < 0.5] = exp(-2j*pi*shift*k[k < 0.5])
     linphase[k > 0.5] = exp(-2j*pi*shift*(k[k > 0.5] - 1.0))
-    linphase[k == 0.5] = cos(2*pi*shift/2)
+    linphase[k == 0.5] = cos(2*pi*shift/2.0)
     return linphase
-
 
 def circshift(a, shift, transformed=False):
     """

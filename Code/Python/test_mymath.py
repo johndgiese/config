@@ -176,17 +176,13 @@ class TestRegister(NumericTestCase):
 
     def setUp(self):
         img0 = scipy.misc.lena()
-        img0ft = fft2(img0)
         ny, nx = img0.shape
         row_shift = randint(-ny/2, ny/2)
         col_shift = randint(-nx/2, nx/2)
-        img1 = m.circshift(img0ft, (row_shift, col_shift), transformed=True)
-        img1ft = fft2(img1)
+        img1 = m.circshift(img0, (row_shift, col_shift))
 
         self.img0 = img0
         self.img1 = img1
-        self.img0ft = img0ft
-        self.img1ft = img1ft
         self.nx = nx
         self.ny = ny
         self.col_shift = col_shift
@@ -196,15 +192,13 @@ class TestRegister(NumericTestCase):
         """Test algorithm without subpixel registration."""
 
         img0 = scipy.misc.lena()
-        img0ft = fft2(img0)
         ny, nx = img0.shape
         row_shift = randint(-ny/2, ny/2)
         col_shift = randint(-nx/2, nx/2)
         row_shift = 10
         col_shift = 27
-        img1 = m.circshift(img0ft, (row_shift, col_shift), transformed=True)
+        img1 = m.circshift(img0, (row_shift, col_shift))
         img1 = abs(img1)
-        img1ft = fft2(img1)
 
         if PLOTTING:
             subplot(211)
@@ -215,22 +209,43 @@ class TestRegister(NumericTestCase):
             title('shifted by {}x{}'.format(row_shift, col_shift))
             show()
 
-        val, row, col = m.register(img0ft, img1ft, transformed=True)
+        val, row, col = m.register(img0, img1)
         self.assertEqual(row, row_shift)
         self.assertEqual(col, col_shift)
 
     def test_upsample_1000(self):
         img0 = scipy.misc.lena()
-        img0ft = fft2(img0)
         ny, nx = img0.shape
         row_shift = (rand() - 0.5)*ny
         col_shift = (rand() - 0.5)*nx
-        img1 = m.circshift(img0ft, (row_shift, col_shift), transformed=True)
-        img1ft = fft2(img1)
+        img1 = m.circshift(img0, (row_shift, col_shift))
 
-        val, row, col = m.register(img0ft, img1ft, upsample=105, transformed=True)
+        val, row, col = m.register(img0, img1, upsample=105)
         self.assertAlmostEqual(row, row_shift, places=2)
         self.assertAlmostEqual(col, col_shift, places=2)
+
+    def test_normalization(self):
+        img0 = zeros([30, 30])
+        img0[0, 0] = 2.0
+        img0[0, 1] = 4.0
+        ny, nx = img0.shape
+        row_shift = 3
+        col_shift = 5
+        img1 = zeros([30, 30])
+        img1[3, 3] = 2.0
+        img1[3, 4] = 4.0
+        
+        v, y, x = m.register(img0, img1)
+        self.assertAlmostEqual(v, 1, places=8)
+
+        v, y, x = m.register(img0, 0.5*img1)
+        self.assertAlmostEqual(v, 1, places=8)
+
+        v, y, x = m.register(img0, img1, upsample=4)
+        self.assertAlmostEqual(v, 1, places=8)
+
+        v, y, x = m.register(img0, 0.5*img1, upsample=4)
+        self.assertAlmostEqual(v, 1, places=8)
 
 
 class TestDFTUpsample(NumericTestCase):
@@ -435,6 +450,12 @@ class TestDFTUpsample(NumericTestCase):
         self.assertArraysClose(ifft2(a), m.dot(F, a, F)/nx/ny)
 
 class TestCircshift(NumericTestCase):
+
+    def test_single_dim_integer_shift(self):
+        a = arange(6)
+        shift = 1
+        a_s = around(m.circshift(a, shift))
+        self.assertArraysClose(a_s, array([5, 0, 1, 2, 3, 4]))
     
     def test_allones(self):
         N = randint(2, 30)
@@ -443,8 +464,19 @@ class TestCircshift(NumericTestCase):
         xx = m.circshift(x, shift)
         self.assertArraysClose(x, xx)
 
+    def test_2d_integer_shift(self):
+        shape = array([4, 5])
+        x = zeros(shape)
+        x[0, 0] = 1
+        shift = []
+        for max_shift in shape:
+            shift.append(randint(max_shift))
+        xx = m.circshift(x, shift)
+        i = unravel_index(argmax(xx), x.shape)
+        self.assertListEqual(list(shift), list(i))
+
     def test_multiple_dimensional_integer_shift(self):
-        shape = array([5, 11, 20, 6])
+        shape = array([2, 2, 3, 2])
         x = zeros(shape)
         x[0, 0, 0, 0] = 1
         shift = []
