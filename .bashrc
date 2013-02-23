@@ -171,6 +171,6 @@ PS1='\[\e]0;\w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\
 if [ $platform == 'mac' ]; then
     # homebrew installs stuff in /usr/local/bin, thus we need this directory to
     # fall before /use/bin
-    export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/share/python:$PATH
+    export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/share/python:/usr/local/share/npm/bin:$PATH
 fi
 
