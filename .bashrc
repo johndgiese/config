@@ -102,7 +102,7 @@ export LSCOLORS=ExFxBxDxCxegedabagacad
 export EDITOR=vim
 
 if [ $platform != 'windows' ]; then
-    export PYTHONPATH=~/Code/Python;$PYTHONPATH
+    export PYTHONPATH=~/Code/Python:$PYTHONPATH
 fi
 
 # Add an "alert" alias for long running commands.  Use like so:
