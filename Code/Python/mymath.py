@@ -1,6 +1,7 @@
-from os.path import exists, splitext
+from os import path
 from re import search
 import itertools
+import unittest
 
 from numpy import array
 from pylab import * # TODO: eventually only use necessary imports
@@ -12,6 +13,12 @@ import numpy as np
 # TODO: move this back to its PEP8 spot once done switching to np.*
 import copy
 
+__all__ = ["corr", "autocorr", "linescan", "register", "upsampled_idft2",
+"zpadf", "circshift", "interp_max", "findpeaks", "findvalleys", "fwhm",
+"savenextfig", "interact", "run_and_plot", "scatter3", "plot_fwhm",
+"closest_in_grid", "findf", "meshgridn", "dot", "outer", "iseven", "isodd",
+"MultiplePeaks", "NoPeaksFound", "NumericTestCase"]
+        
 PLOTTING = False
 
 class MultiplePeaks(Exception): pass
@@ -412,7 +419,7 @@ def findvalleys(X, *args, **kwargs):
 def fwhm(x, y):
     """
     Determine full-with-half-maximum of a peaked set of points, x and y.
-
+http://motherboard.vice.com/blog/solar-powered-trash-cans-saved-philadelphia-almost-a-million-bucks
     Assumes that there is only one peak present in the datasset.  The function
     uses a spline interpolation of order k.
     """
@@ -432,8 +439,8 @@ def fwhm(x, y):
 
 ## VISUALIZATION
 
-# TODO: handle zero-padding appropriatly
-def savenextfig(fname, *arrs):
+# TODO: FIXME
+def savenextfig(path, zeros=4, *args, **kwargs):
     """
     Save figure using next available numbered name.
 
@@ -444,15 +451,16 @@ def savenextfig(fname, *arrs):
         already_five.png --> already_five6.png
 
     """
-    while exists(fname):
-        fname_noext, ext = splitext(fname)
-        match = search(r'(.*[^\d])(\d+)$', fname_noext)
-        if match:
-            num = str(int(match.group(2)) + 1)
-            fname = match.group(1) + num + ext
-        else:
-            fname = fname_noext + '0' + ext
-    savefig(fname, *arrs)
+    root, ext = path.splitext(fname)
+    print(root, ext)
+    match = search(r'.*[^\d](\d+)$', root)
+    if match:
+        num = int(match.group(1)) + 1
+    else:
+        num = 0
+    print(num)
+    fname = root + str(num).zfill(zeros) + ext
+    savefig(fname, *args, **kwargs)
 
 
 def interact(func, x, y, adjustable):
@@ -568,24 +576,29 @@ def findf(x):
 def meshgridn(*arrs):
     """A multi-dimensional version of meshgrid."""
 
-    arrs = tuple(reversed(arrs))
+    arrs = map(asarray, arrs)
     lens = map(len, arrs)
     dim = len(arrs)
 
     sz = 1
     for s in lens:
         sz *= s
+    
+    first_dtype = arrs[0].dtype
+    for arr in arrs[1:]:
+        if not arr.dtype == first_dtype:
+            raise Exception("All array datatypes must be the same.")
 
     ans = []    
     for i, arr in enumerate(arrs):
         slc = [1]*dim
         slc[i] = lens[i]
-        arr2 = asarray(arr).reshape(slc)
+        arr2 = arr.reshape(slc)
         for j, sz in enumerate(lens):
             if j!=i:
                 arr2 = arr2.repeat(sz, axis=j) 
         ans.append(arr2)
-    return tuple(ans)
+    return ans
 
 
 def dot(*arrays):
@@ -606,7 +619,6 @@ def iseven(el):
     else:
         return viseven(el)
 
-
 @vectorize
 def visodd(el):
     return el % 2
@@ -617,3 +629,50 @@ def isodd(el):
     else:
         return visodd(el)
 
+class NumericTestCase(unittest.TestCase):
+    """Test case with assertions for numeric computing."""
+
+    def assertArraysClose(self, a, b, rtol=1e-05, atol=1e-08):
+        """Check that the two arrays are almost equal, see np.allclose."""
+
+        if not a.shape == b.shape:
+            msg = "The two arrays don't even have the same shape!\n"
+            msg += "The first array has {} shape.\n".format(a.shape)
+            msg += "The second array has {} shape.\n".format(b.shape)
+            raise self.failureException(msg)
+
+        arrays_close = np.allclose(a, b, rtol=rtol, atol=atol)
+
+        if not arrays_close:
+            Ea = sum(abs(a)**2)
+            Eb = sum(abs(b)**2)
+            Ed = sum(abs(a - b)**2)
+            mean_angle_diff = mean(abs(angle(a) - angle(b)))*180/pi
+            msg = "The two arrays are not equal.\n"
+            msg += "The first 10 elements of a are:\n{}\n".format(a.flatten()[:20])
+            msg += "The first 10 elements of b are:\n{}\n".format(b.flatten()[:20])
+            msg += "The energy of a is %s.\n" % (str(Ea),)
+            msg += "The energy of b is %s.\n" % (str(Eb),)
+            msg += "The energy of a - b is %s.\n" % (str(Ed),)
+            msg += "The mean angle difference is {} deg.\n\n".format(mean_angle_diff)
+            raise self.failureException(msg)
+
+    def assertAnglesAlmostEqual(self, ai1, ai2, rtol=1e-05, atol=1e-08):
+        """Two angles are equal within n*2*pi."""
+
+        a1 = ai1 % pi
+        a2 = ai2 % pi
+
+        close_same = np.allclose(a1, a2, rtol=rtol, atol=atol)
+
+        # the angles still could be close, but fall on the opposite sides of pi
+        close_oppo = False
+        if a1 < pi/2 and a2 > pi/2:
+            close_oppo = np.allclose(a1, a2 - pi)
+        if a1 > pi/2 and a2 < pi/2:
+            close_oppo = np.allclose(a1 - pi, a2)
+
+        if close_same == close_oppo:
+            msg = "Angles {} and {} are not almost equal.".format(ai1, ai2)
+            msg += "After unwrapping we have {} and {}.".format(a1, a2)
+            raise self.failureException(msg)
