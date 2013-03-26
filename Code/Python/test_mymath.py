@@ -6,37 +6,10 @@ import pylab as pl
 import scipy
 import numpy as np
 
-import mymath as m
+import mymath as mm
+from mymath import NumericTestCase
 
 PLOTTING = False
-
-class NumericTestCase(unittest.TestCase):
-    """Test case with assertions for numeric computing."""
-
-    def assertArraysClose(self, a, b, rtol=1e-05, atol=1e-08):
-        """Check that the two arrays are almost equal, see np.allclose."""
-
-        if not a.shape == b.shape:
-            msg = "The two arrays don't even have the same shape!\n"
-            msg += "The first array has {} shape.\n".format(a.shape)
-            msg += "The second array has {} shape.\n".format(b.shape)
-            raise self.failureException(msg)
-
-        arrays_close = np.allclose(a, b, rtol=rtol, atol=atol)
-
-        if not arrays_close:
-            Ea = sum(abs(a)**2)
-            Eb = sum(abs(b)**2)
-            Ed = sum(abs(a - b)**2)
-            mean_angle_diff = mean(abs(angle(a) - angle(b)))*180/pi
-            msg = "The two arrays are not equal.\n"
-            msg += "The first 10 elements of a are:\n{}\n".format(a.flatten()[:20])
-            msg += "The first 10 elements of b are:\n{}\n".format(b.flatten()[:20])
-            msg += "The energy of a is %s.\n" % (str(Ea),)
-            msg += "The energy of b is %s.\n" % (str(Eb),)
-            msg += "The energy of a - b is %s.\n" % (str(Ed),)
-            msg += "The mean angle difference is {} deg.\n\n".format(mean_angle_diff)
-            raise self.failureException(msg)
 
 class TestFwhm(NumericTestCase):
 
@@ -45,17 +18,17 @@ class TestFwhm(NumericTestCase):
 
     def test_multiple_peaks(self):
         y = array([1, 10, 6, 3, 5, 10, 7, 2, 1, 1])
-        self.assertRaises(m.MultiplePeaks, m.fwhm, self.x, y)
+        self.assertRaises(mm.MultiplePeaks, mm.fwhm, self.x, y)
 
     def test_flat(self):
         y = ones(self.x.shape)
-        self.assertRaises(m.NoPeaksFound, m.fwhm, self.x, y)
+        self.assertRaises(mm.NoPeaksFound, mm.fwhm, self.x, y)
 
     def test_gaussian(self):
         sigma = rand()
         x = linspace(-2*sigma, 2*sigma, 100)
         y = exp(-(x/sigma)**2/2)
-        fwhm = m.fwhm(x, y)
+        fwhm = mm.fwhm(x, y)
         gaus_fwhm = 2*sqrt(2*log(2))*sigma
         self.assertAlmostEqual(fwhm, gaus_fwhm, places=3)
 
@@ -63,14 +36,14 @@ class TestCorr(NumericTestCase):
 
     def test_autocorr(self):
         A = rand(10, 15)
-        corr0 = m.autocorr(A)
+        corr0 = mm.autocorr(A)
         self.assertAlmostEqual(corr0[0, 0], 1.0)
 
     def test_normalization(self):
         """All values of the correlation should be between -1 and 1."""
         A = rand(10, 15)
         B = rand(10, 15)
-        C = m.corr(A, B)
+        C = mm.corr(A, B)
         self.assertTrue((abs(C) <= 1.000000001).all())
 
 class TestZpadf(NumericTestCase):
@@ -78,21 +51,21 @@ class TestZpadf(NumericTestCase):
     def test_1d(self):
         a = array([1.0, 1.0])
         za = array([1.0, 0.5, 0, 0.5])
-        self.assertArraysClose(za, m.zpadf(a, 2))
-        self.assertArraysClose(za, m.zpadf(a, (2,)))
+        self.assertArraysClose(za, mm.zpadf(a, 2))
+        self.assertArraysClose(za, mm.zpadf(a, (2,)))
 
 
         a = array([1.0, 2, 3])
         za = array([1, 2, 0, 0, 3])
-        self.assertArraysClose(za, m.zpadf(a, 2))
+        self.assertArraysClose(za, mm.zpadf(a, 2))
 
         a = array([1.0, 2, 3, 4])
         za = array([1, 2, 1.5, 0, 1.5, 4])
-        self.assertArraysClose(za, m.zpadf(a, 2))
+        self.assertArraysClose(za, mm.zpadf(a, 2))
 
         a = array([1.0, 2, 3, 4])
         za = array([1, 2, 1.5, 0, 0, 1.5, 4])
-        self.assertArraysClose(za, m.zpadf(a, 3))
+        self.assertArraysClose(za, mm.zpadf(a, 3))
 
     def test_2d(self):
         a = array([
@@ -105,8 +78,8 @@ class TestZpadf(NumericTestCase):
             [0,   0, 0, 0],
             [1.5, 2, 0, 2]
         ])
-        self.assertArraysClose(za, m.zpadf(a, 2))
-        self.assertArraysClose(za, m.zpadf(a, (2, 2)))
+        self.assertArraysClose(za, mm.zpadf(a, 2))
+        self.assertArraysClose(za, mm.zpadf(a, (2, 2)))
 
         za = array([
             [1,   2], 
@@ -114,44 +87,44 @@ class TestZpadf(NumericTestCase):
             [0,   0],
             [1.5, 4]
         ])
-        self.assertArraysClose(za, m.zpadf(a, (2, 0)))
+        self.assertArraysClose(za, mm.zpadf(a, (2, 0)))
 
         za = array([
             [1,   1, 0, 1], 
             [3,   4, 0, 4],
         ])
-        self.assertArraysClose(za, m.zpadf(a, (0, 2)))
+        self.assertArraysClose(za, mm.zpadf(a, (0, 2)))
 
 
 class TestInterpMax(NumericTestCase):
 
     def test_closest_in_grid(self):
-        x, y = m.closest_in_grid(2, 3, 0, 0)
+        x, y = mm.closest_in_grid(2, 3, 0, 0)
         self.assertEqual((x, y), (0, 0))
-        x, y = m.closest_in_grid(2, 3, -1, 0)
+        x, y = mm.closest_in_grid(2, 3, -1, 0)
         self.assertEqual((x, y), (0, 0))
-        x, y = m.closest_in_grid(2, 3, -1, -4)
+        x, y = mm.closest_in_grid(2, 3, -1, -4)
         self.assertEqual((x, y), (0, 0))
 
-        x, y = m.closest_in_grid(2, 3, 2, 3)
+        x, y = mm.closest_in_grid(2, 3, 2, 3)
         self.assertEqual((x, y), (1, 2))
-        x, y = m.closest_in_grid(2, 3, 1, 30)
+        x, y = mm.closest_in_grid(2, 3, 1, 30)
         self.assertEqual((x, y), (1, 2))
-        x, y = m.closest_in_grid(2, 3, 100, 0)
+        x, y = mm.closest_in_grid(2, 3, 100, 0)
         self.assertEqual((x, y), (1, 0))
 
     def test_easy(self):
         img = array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
         x = [1, 2, 3]
         y = [1, 2, 3]
-        xx, yy, zz = m.interp_max(img, x=x, y=y)
+        xx, yy, zz = mm.interp_max(img, x=x, y=y)
         self.assertAlmostEqual(xx, 2)
         self.assertAlmostEqual(yy, 2)
         self.assertAlmostEqual(zz, 1)
 
     def test_easy_using_indices(self):
         img = array([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
-        xx, yy, zz = m.interp_max(img)
+        xx, yy, zz = mm.interp_max(img)
         self.assertAlmostEqual(xx, 1)
         self.assertAlmostEqual(yy, 1)
         self.assertAlmostEqual(zz, 1)
@@ -167,7 +140,7 @@ class TestInterpMax(NumericTestCase):
         def func(x, y):
             return -3*(x - xm)**2 - (y - ym)**2
         Z = reshape(array(map(func, X, Y)), (len(x), len(y)))
-        xx, yy, zz = m.interp_max(Z, x, y, precision=precision)
+        xx, yy, zz = mm.interp_max(Z, x, y, precision=precision)
         expected_places = 1
         self.assertAlmostEqual(xx, xm, places=expected_places)
         self.assertAlmostEqual(yy, ym, places=expected_places)
@@ -179,7 +152,7 @@ class TestRegister(NumericTestCase):
         ny, nx = img0.shape
         row_shift = randint(-ny/2, ny/2)
         col_shift = randint(-nx/2, nx/2)
-        img1 = m.circshift(img0, (row_shift, col_shift))
+        img1 = mm.circshift(img0, (row_shift, col_shift))
 
         self.img0 = img0
         self.img1 = img1
@@ -197,7 +170,7 @@ class TestRegister(NumericTestCase):
         col_shift = randint(-nx/2, nx/2)
         row_shift = 10
         col_shift = 27
-        img1 = m.circshift(img0, (row_shift, col_shift))
+        img1 = mm.circshift(img0, (row_shift, col_shift))
         img1 = abs(img1)
 
         if PLOTTING:
@@ -209,7 +182,7 @@ class TestRegister(NumericTestCase):
             title('shifted by {}x{}'.format(row_shift, col_shift))
             show()
 
-        val, row, col = m.register(img0, img1)
+        val, row, col = mm.register(img0, img1)
         self.assertEqual(row, row_shift)
         self.assertEqual(col, col_shift)
 
@@ -218,9 +191,9 @@ class TestRegister(NumericTestCase):
         ny, nx = img0.shape
         row_shift = (rand() - 0.5)*ny
         col_shift = (rand() - 0.5)*nx
-        img1 = m.circshift(img0, (row_shift, col_shift))
+        img1 = mm.circshift(img0, (row_shift, col_shift))
 
-        val, row, col = m.register(img0, img1, upsample=105)
+        val, row, col = mm.register(img0, img1, upsample=105)
         self.assertAlmostEqual(row, row_shift, places=2)
         self.assertAlmostEqual(col, col_shift, places=2)
 
@@ -235,16 +208,16 @@ class TestRegister(NumericTestCase):
         img1[3, 3] = 2.0
         img1[3, 4] = 4.0
         
-        v, y, x = m.register(img0, img1)
+        v, y, x = mm.register(img0, img1)
         self.assertAlmostEqual(v, 1, places=8)
 
-        v, y, x = m.register(img0, 0.5*img1)
+        v, y, x = mm.register(img0, 0.5*img1)
         self.assertAlmostEqual(v, 1, places=8)
 
-        v, y, x = m.register(img0, img1, upsample=4)
+        v, y, x = mm.register(img0, img1, upsample=4)
         self.assertAlmostEqual(v, 1, places=8)
 
-        v, y, x = m.register(img0, 0.5*img1, upsample=4)
+        v, y, x = mm.register(img0, 0.5*img1, upsample=4)
         self.assertAlmostEqual(v, 1, places=8)
 
 
@@ -252,9 +225,9 @@ class TestDFTUpsample(NumericTestCase):
 
     def remove_nyquist(self, a, aft):
         ny, nx = a.shape
-        if m.iseven(ny):
+        if mm.iseven(ny):
             aft[ny/2,:] = 0
-        if m.iseven(nx):
+        if mm.iseven(nx):
             aft[:,nx/2] = 0
         a = real(ifft2(aft))
         return a, aft
@@ -263,7 +236,7 @@ class TestDFTUpsample(NumericTestCase):
 
         ## pick random odd upsampling
         upsample = randint(1, 16)
-        if m.iseven(upsample):
+        if mm.iseven(upsample):
             half = int((upsample - 1)/2.0)
         else:
             half = int(upsample/2.0) - 1
@@ -323,7 +296,7 @@ class TestDFTUpsample(NumericTestCase):
 
         ## calculate the slow way
         extra_zeros = ((upsample - 1)*ny, (upsample - 1)*nx)
-        padded = m.zpadf(a, extra_zeros)
+        padded = mm.zpadf(a, extra_zeros)
         b_slow_big = ifft2(padded)
         b_slow = b_slow_big[
             top:top + height,
@@ -331,8 +304,8 @@ class TestDFTUpsample(NumericTestCase):
         ]
 
         # calculate the fast way
-        b_fast = m.upsampled_idft2(a, upsample, height, width, top, left)
-        b_fast_big = m.upsampled_idft2(a, upsample, upsample*ny, upsample*nx, 0, 0)
+        b_fast = mm.upsampled_idft2(a, upsample, height, width, top, left)
+        b_fast_big = mm.upsampled_idft2(a, upsample, upsample*ny, upsample*nx, 0, 0)
 
         if PLOTTING:
             subplot(411)
@@ -372,7 +345,7 @@ class TestDFTUpsample(NumericTestCase):
         """The function should be properly normalized."""
         a = ones([10, 10])
         aa = fft2(a)
-        b = m.upsampled_idft2(aa, 3, 30, 30, 0, 0)
+        b = mm.upsampled_idft2(aa, 3, 30, 30, 0, 0)
         self.assertAlmostEqual(amax(a), amax(abs(b)))
 
     def test_full_array(self):
@@ -388,11 +361,11 @@ class TestDFTUpsample(NumericTestCase):
 
         ## calculate the slow way
         extra_zeros = ((upsample - 1)*ny, (upsample - 1)*nx)
-        padded = m.zpadf(a, extra_zeros)
+        padded = mm.zpadf(a, extra_zeros)
         b_slow_big = ifft2(padded)
 
         # calculate the fast way
-        b_fast_big = m.upsampled_idft2(a, upsample, upsample*ny, upsample*nx, 0, 0)
+        b_fast_big = mm.upsampled_idft2(a, upsample, upsample*ny, upsample*nx, 0, 0)
 
         b_slow_big = b_slow_big/mean(abs(b_slow_big))
         b_fast_big = b_fast_big/mean(abs(b_fast_big))
@@ -418,15 +391,15 @@ class TestDFTUpsample(NumericTestCase):
         A = array([[1, 4], [0, 2]])
         AA = fft2(A)
         known_out = array([[4, 2.5], [3, 1.75]])
-        out = m.upsampled_idft2(AA, 2, 2, 2, 0, 2)
+        out = mm.upsampled_idft2(AA, 2, 2, 2, 0, 2)
         self.assertArraysClose(known_out, out)
 
         # code comparing the ideal fourier matrix approach with proper
         # zero-padding, to the idft_upsampled
         AAA = zpadf(AA, (2, 2))
         F = array([[1, 1, 1, 1],[1, 1j, -1, -1j],[1,-1,1,-1],[1,-1j,-1,1j]])/4.0
-        out2 = m.dot(F, AAA, F)*4.0
-        out = m.upsampled_idft2(AA, 2, 4, 4, 0, 0)
+        out2 = mm.dot(F, AAA, F)*4.0
+        out = mm.upsampled_idft2(AA, 2, 4, 4, 0, 0)
 
     def test_simple(self):
         """
@@ -447,21 +420,21 @@ class TestDFTUpsample(NumericTestCase):
                    [1, 1j, -1, -1j],
                    [1, -1, 1, -1],
                    [1, -1j, -1, 1j]])
-        self.assertArraysClose(ifft2(a), m.dot(F, a, F)/nx/ny)
+        self.assertArraysClose(ifft2(a), mm.dot(F, a, F)/nx/ny)
 
 class TestCircshift(NumericTestCase):
 
     def test_single_dim_integer_shift(self):
         a = arange(6)
         shift = 1
-        a_s = around(m.circshift(a, shift))
+        a_s = around(mm.circshift(a, shift))
         self.assertArraysClose(a_s, array([5, 0, 1, 2, 3, 4]))
     
     def test_allones(self):
         N = randint(2, 30)
         shift = 2*N*rand()
         x = ones([N])
-        xx = m.circshift(x, shift)
+        xx = mm.circshift(x, shift)
         self.assertArraysClose(x, xx)
 
     def test_2d_integer_shift(self):
@@ -471,7 +444,7 @@ class TestCircshift(NumericTestCase):
         shift = []
         for max_shift in shape:
             shift.append(randint(max_shift))
-        xx = m.circshift(x, shift)
+        xx = mm.circshift(x, shift)
         i = unravel_index(argmax(xx), x.shape)
         self.assertListEqual(list(shift), list(i))
 
@@ -482,9 +455,35 @@ class TestCircshift(NumericTestCase):
         shift = []
         for max_shift in shape:
             shift.append(randint(max_shift))
-        xx = m.circshift(x, shift)
+        xx = mm.circshift(x, shift)
         i = unravel_index(argmax(xx), x.shape)
         self.assertListEqual(list(shift), list(i))
+
+class TestMeshgrid(NumericTestCase):
+    
+    def test_3(self):
+        x = arange(2)
+        y = arange(3)
+        z = arange(4)
+        X, Y, Z = mm.meshgridn(x, y, z)
+        
+        X_correct = array([
+            [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+            [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
+        ])
+        Y_correct = array([
+            [[0, 0, 0, 0], [1, 1, 1, 1], [2, 2, 2, 2]],
+            [[0, 0, 0, 0], [1, 1, 1, 1], [2, 2, 2, 2]],
+        ])
+        Z_correct = array([
+            [[0, 1, 2, 3], [0, 1, 2, 3], [0, 1, 2, 3]],
+            [[0, 1, 2, 3], [0, 1, 2, 3], [0, 1, 2, 3]],
+        ])
+        self.assertArraysClose(X, X_correct)
+        self.assertArraysClose(Y, Y_correct)
+        self.assertArraysClose(Z, Z_correct)
+
+
 
 if __name__ == '__main__':
     unittest.main()
