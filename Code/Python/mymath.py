@@ -43,6 +43,9 @@ def corr(a, b):
         G = real(G)
     return G
 
+def speckle_contrast(img):
+    """Calculate the contrast, standard deviation over the mean."""
+    return std(img)/mean(img)
 
 def autocorr(a):
     """Circular autocorrelation using fourier transform."""
