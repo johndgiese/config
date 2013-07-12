@@ -152,8 +152,6 @@ else
     }
 fi
 
-alias ack="ack-grep"
-
 ## web-development
 alias chrome="chromium-browser"
 alias dj="python manage.py $@"
