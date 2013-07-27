@@ -170,5 +170,7 @@ if [ $platform == 'mac' ]; then
     # homebrew installs stuff in /usr/local/bin, thus we need this directory to
     # fall before /use/bin
     export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/share/python:/usr/local/share/npm/bin:$PATH
-fi
 
+    # ruby
+    export PATH=/usr/local/opt/ruby/bin/:$PATH
+fi
