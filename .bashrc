@@ -176,5 +176,8 @@ if [ $platform == 'mac' ]; then
 fi
 
 ## git shorcuts
-alias gitpom="git push origin master"
+alias gitpom="echo johndgiese | git push origin master"
 alias gitcm="git commit -m"
+alias gitcma="git commit --amend -m"
+alias gits="git status"
+alias gitlo="git log --oneline"
