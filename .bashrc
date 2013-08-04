@@ -174,3 +174,7 @@ if [ $platform == 'mac' ]; then
     # ruby
     export PATH=/usr/local/opt/ruby/bin/:$PATH
 fi
+
+## git shorcuts
+alias gitpom="git push origin master"
+alias gitcm="git commit -m"
