@@ -155,6 +155,8 @@ fi
 ## web-development
 alias chrome="chromium-browser"
 alias dj="python manage.py $@"
+alias a2r="sudo service apache2 restart"
+alias a2elog="less /var/log/apache2/error.log"
 function djrs() {
     python manage.py runserver 8000 
 }
@@ -163,7 +165,7 @@ function djb() {
 }
 
 # better command prompt
-PS1='\[\e]0;\w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\]\$ '
+PS1='\[\e]0;\w\a\]\u@\H ${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\]\$ '
 
 ## mac stuff
 if [ $platform == 'mac' ]; then
