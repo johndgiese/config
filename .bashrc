@@ -151,8 +151,11 @@ else
         done
     }
 fi
+<<<<<<< HEAD
 
 alias ack="ack-grep"
+=======
+>>>>>>> 332263b2444dd2fb1471325067a3b4b6775bcb81
 
 ## web-development
 alias chrome="chromium-browser"
@@ -172,5 +175,15 @@ if [ $platform == 'mac' ]; then
     # homebrew installs stuff in /usr/local/bin, thus we need this directory to
     # fall before /use/bin
     export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/share/python:/usr/local/share/npm/bin:$PATH
+
+    # ruby
+    export PATH=/usr/local/opt/ruby/bin/:$PATH
 fi
 
+## git shorcuts
+alias gitpom="git push origin master"
+alias gitpum="git pull origin master"
+alias gitcm="git commit -m"
+alias gitcma="git commit --amend -m"
+alias gits="git status"
+alias gitlo="git log --oneline"

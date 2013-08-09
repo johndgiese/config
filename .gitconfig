@@ -8,9 +8,8 @@
     branch = true
 	us = true
 [credential]
-	helper = cache --timeout=72000
 [core]
-	editor = gvim
+	editor = vim
 [init]
 	templatedir = ~/.git_template
 [alias]
