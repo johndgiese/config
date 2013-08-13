@@ -151,11 +151,6 @@ else
         done
     }
 fi
-<<<<<<< HEAD
-
-alias ack="ack-grep"
-=======
->>>>>>> 332263b2444dd2fb1471325067a3b4b6775bcb81
 
 ## web-development
 alias chrome="chromium-browser"
