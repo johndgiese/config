@@ -152,6 +152,14 @@ else
     }
 fi
 
+## auto enter virtual environments
+cd () {
+    builtin cd $@
+    if [ -d "env" ]; then
+        source env/bin/activate
+    fi
+}
+
 ## web-development
 alias chrome="chromium-browser"
 alias dj="python manage.py $@"
@@ -167,6 +175,7 @@ function djb() {
 # better command prompt
 PS1='\[\e]0;\w\a\]\u@\H ${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\]\$ '
 
+
 ## mac stuff
 if [ $platform == 'mac' ]; then
     # homebrew installs stuff in /usr/local/bin, thus we need this directory to
@@ -175,7 +184,13 @@ if [ $platform == 'mac' ]; then
 
     # ruby
     export PATH=/usr/local/opt/ruby/bin/:$PATH
+
 fi
+
+
+## CABAL
+export PATH=$PATH:$HOME/.cabal/bin/
+
 
 ## git shorcuts
 alias gitpom="git push origin master"
