@@ -155,10 +155,11 @@ fi
 ## auto enter virtual environments
 cd () {
     builtin cd $@
-    if [ -d "env" ]; then
+    if [ -f "env/bin/activate" ]; then
         source env/bin/activate
     fi
 }
+
 
 ## web-development
 alias chrome="chromium-browser"
