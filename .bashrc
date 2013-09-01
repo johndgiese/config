@@ -155,10 +155,11 @@ fi
 ## auto enter virtual environments
 cd () {
     builtin cd $@
-    if [ -d "env" ]; then
+    if [ -f "env/bin/activate" ]; then
         source env/bin/activate
     fi
 }
+
 
 ## web-development
 alias chrome="chromium-browser"
@@ -192,10 +193,10 @@ fi
 export PATH=$PATH:$HOME/.cabal/bin/
 
 
-## git shorcuts
-alias gitpom="git push origin master"
-alias gitpum="git pull origin master"
-alias gitcm="git commit -m"
-alias gitcma="git commit --amend -m"
-alias gits="git status"
-alias gitlo="git log --oneline"
+## git shortcuts
+alias gpush="git push origin master"
+alias gpull="git pull origin master"
+alias gc="git commit -m"
+alias gca="git commit --amend -m"
+alias gs="git status"
+alias glog="git log --oneline"
