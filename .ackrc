@@ -7,3 +7,6 @@
 
 # ignore pycharm files
 --ignore-dir=.idea
+
+# ignore collected static files
+--ignore-dir=collected_static
