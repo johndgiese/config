@@ -1,0 +1,12 @@
+
+# ignore python virtual environments
+--ignore-dir=env
+
+# ignore bower install directory
+--ignore-dir=vendor
+
+# ignore pycharm files
+--ignore-dir=.idea
+
+# ignore collected static files
+--ignore-dir=collected_static

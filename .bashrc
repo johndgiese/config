@@ -197,6 +197,7 @@ export PATH=$PATH:$HOME/.cabal/bin/
 alias gpush="git push origin master"
 alias gpull="git pull origin master"
 alias gc="git commit -m"
+alias gdiff="git diff"
 alias gca="git commit --amend -m"
 alias gs="git status"
 alias glog="git log --oneline"
