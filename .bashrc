@@ -5,7 +5,6 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-
 platform='unknown'
 if [ $(uname) == 'Linux' ]; then
     platform='linux'
@@ -184,6 +183,12 @@ if [ $platform == 'mac' ]; then
 
     # ruby
     export PATH=/usr/local/opt/ruby/bin/:$PATH
+
+
+    # use bash completion
+    if [ -f $(brew --prefix)/etc/bash_completion ]; then
+        . $(brew --prefix)/etc/bash_completion
+    fi
 
 fi
 
