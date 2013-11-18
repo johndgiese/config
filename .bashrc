@@ -101,7 +101,7 @@ export LSCOLORS=ExFxBxDxCxegedabagacad
 export EDITOR=vim
 
 if [ $platform != 'windows' ]; then
-    export PYTHONPATH=~/Code/Python:$PYTHONPATH
+    export PYTHONPATH=~/Code/python:$PYTHONPATH
 fi
 
 # Add an "alert" alias for long running commands.  Use like so:
@@ -177,13 +177,19 @@ PS1='\[\e]0;\w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\
 
 ## mac stuff
 if [ $platform == 'mac' ]; then
-    # homebrew installs stuff in /usr/local/bin, thus we need this directory to
-    # fall before /use/bin
-    export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/share/python:/usr/local/share/npm/bin:$PATH
+
+    # homebrew installs stuff in /usr/local/bin
+    export PATH=/usr/local/bin:$PATH
+    export PATH=/usr/local/sbin:$PATH
+
+    # add python binaries
+    export PATH=/usr/local/share/python:$PATH
+
+    # add node binaries
+    export PATH=/usr/local/share/npm/bin:$PATH
 
     # ruby
     export PATH=/usr/local/opt/ruby/bin/:$PATH
-
 
     # use bash completion
     if [ -f $(brew --prefix)/etc/bash_completion ]; then
