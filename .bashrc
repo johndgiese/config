@@ -180,18 +180,17 @@ PS1='\[\e]0;\w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[00m\
 ## mac stuff
 if [ $platform == 'mac' ]; then
 
-    # homebrew installs stuff in /usr/local/bin
+    # /usr/local/bin is even though it is a duplicate, we want /usr/local/bin
+    # to com before /usr/bin so that brew versions of python are called instead
+    # of the default installed version
     export PATH=/usr/local/bin:$PATH
     export PATH=/usr/local/sbin:$PATH
-
-    # add python binaries
-    export PATH=/usr/local/share/python:$PATH
 
     # add node binaries
     export PATH=/usr/local/share/npm/bin:$PATH
 
     # ruby
-    export PATH=/usr/local/opt/ruby/bin/:$PATH
+    export PATH=/usr/local/opt/ruby/bin:$PATH
 
     # use bash completion
     if [ -f $(brew --prefix)/etc/bash_completion ]; then
@@ -202,7 +201,7 @@ fi
 
 
 ## CABAL
-export PATH=$PATH:$HOME/.cabal/bin/
+export PATH=$PATH:$HOME/.cabal/bin
 
 
 ## git shortcuts
