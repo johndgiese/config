@@ -12,3 +12,8 @@ $if mode=vi
     "jk": vi-movement-mode
 $endif
 
+$if Bash
+    # make clear screen work in insert mode
+    "\C-l": "\e\C-la"
+$endif
+
