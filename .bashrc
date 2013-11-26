@@ -188,6 +188,10 @@ if [ $platform == 'mac' ]; then
 
 fi
 
+if [ $platform == 'linux' ]; then
+    echo "keycode 14 = BackSpace" | loadkeys
+fi
+
 
 ## CABAL
 export PATH=$PATH:$HOME/.cabal/bin/
