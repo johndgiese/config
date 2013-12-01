@@ -125,10 +125,9 @@ if [ $PLATFORM != 'windows' ]; then
     }
 fi
 
-if [ $platform == 'linux' ]; then
+if [ $PLATFORM == 'linux' ]; then
     echo "keycode 14 = BackSpace" | loadkeys
 fi
-
 
 ## CABAL
 export PATH=$PATH:$HOME/.cabal/bin
@@ -143,3 +142,5 @@ alias gdiff="git diff"
 alias glog="git log --oneline"
 function gclone (){(git clone git@github.com:johndgiese/$1.git $2)}
 function gcloneh (){(git clone https://github.com/johndgiese/$1 $2)}
+
+
