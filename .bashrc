@@ -125,10 +125,6 @@ if [ $PLATFORM != 'windows' ]; then
     }
 fi
 
-if [ $PLATFORM == 'linux' ]; then
-    echo "keycode 14 = BackSpace" | loadkeys
-fi
-
 ## CABAL
 export PATH=$PATH:$HOME/.cabal/bin
 
