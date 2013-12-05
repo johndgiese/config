@@ -109,7 +109,6 @@ if [ $PLATFORM == 'mac' ]; then
     # ruby
     export PATH=/usr/local/opt/ruby/bin:$PATH
 
-
 fi
 
 ## PYTHON
@@ -126,7 +125,6 @@ if [ $PLATFORM != 'windows' ]; then
     }
 fi
 
-
 ## CABAL
 export PATH=$PATH:$HOME/.cabal/bin
 
@@ -140,3 +138,5 @@ alias gdiff="git diff"
 alias glog="git log --oneline"
 function gclone (){(git clone git@github.com:johndgiese/$1.git $2)}
 function gcloneh (){(git clone https://github.com/johndgiese/$1 $2)}
+
+
