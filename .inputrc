@@ -16,9 +16,6 @@ $if mode=vi
     "\C-n": history-search-forward
 $endif
 
-
-$if Bash
-    # make clear screen work in insert mode
-    "\C-l": "\e\C-la"
-$endif
+# make clear screen work in insert mode
+"\C-l": "\e\C-la"
 
