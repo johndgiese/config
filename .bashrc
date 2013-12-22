@@ -59,6 +59,10 @@ fi
 export CLICOLOR=yes
 export LSCOLORS=ExFxBxDxCxegedabagacad
 
+if [ $PLATFORM == 'linux' ]; then
+    alias ls='ls --color=auto'
+fi
+
 
 ## VIM
 export EDITOR=vim
