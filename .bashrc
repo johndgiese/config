@@ -78,9 +78,7 @@ if [ $PLATFORM == 'linux' ]; then
         done
     }
 elif [ $PLATFORM == 'mac' ]; then
-    function op() {
-        open
-    }
+    alias op="open"
 elif [ $PLATFORM == 'windows' ]; then
     function op() {
         for var in "$@"
