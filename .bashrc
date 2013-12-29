@@ -55,6 +55,12 @@ else
 fi
 
 
+## NAVIGATION
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+
+
 ## COLORS
 export CLICOLOR=yes
 export LSCOLORS=ExFxBxDxCxegedabagacad
