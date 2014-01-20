@@ -1,0 +1,21 @@
+
+set history-size 10000
+
+set bell-style visible
+set match-hidden-files off
+
+set editing-mode vi
+$if mode=vi
+    set keymap vi-command
+    "jk": vi-insertion-mode
+    "\C-p": history-search-backward
+    "\C-n": history-search-forward
+    set keymap vi-insert
+    "jk": vi-movement-mode
+    "\C-p": history-search-backward
+    "\C-n": history-search-forward
+$endif
+
+# make clear screen work in insert mode
+"\C-l": "\e\C-la"
+
