@@ -99,10 +99,9 @@ elif [ $PLATFORM == 'windows' ]; then
 fi
 
 ## WEB-DEVELOPMENT
-alias dj="python manage.py $@"
-function djrs() {(python manage.py runserver 8000)}
-function djb() {(chromium-browser http://127.0.0.1:8000)}
+. ~/.bash/complete/django.sh # setup bash autocomplete
 
+function djrs() {(python manage.py runserver $@)}
 
 ## MAC STUFF
 if [ $PLATFORM == 'mac' ]; then
