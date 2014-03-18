@@ -139,8 +139,9 @@ export PATH=$PATH:$HOME/.cabal/bin
 
 
 ## GIT
-alias gc="git commit -m"
+alias gc="git commit"
 alias gs="git status"
+alias gb="git branch"
 alias gpush="git push origin master"
 alias gpull="git pull origin master"
 alias gdiff="git diff"
