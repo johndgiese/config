@@ -10,6 +10,7 @@
 [credential]
 [core]
 	editor = vim
+	autcrlf = false
 [init]
 	templatedir = ~/.git_template
 [alias]
