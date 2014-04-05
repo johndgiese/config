@@ -9,6 +9,7 @@ if [ $(uname) == 'Linux' ]; then
     PLATFORM='linux'
 elif [ $(uname) == 'Darwin' ]; then
     PLATFORM='mac'
+    export TERM='xterm-256color'
 elif [ $(uname) == 'NT' ]; then
     PLATFORM='windows'
     export TERM='cygwin'
@@ -62,11 +63,11 @@ alias ....="cd ../../.."
 
 
 ## COLORS
-export CLICOLOR=yes
-export LSCOLORS=ExFxBxDxCxegedabagacad
 
 if [ $PLATFORM == 'linux' ]; then
     alias ls='ls --color=auto'
+elif [ $PLATFORM == 'mac' ]; then
+    export CLICOLOR=yes
 fi
 
 
