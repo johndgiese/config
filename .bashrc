@@ -77,6 +77,7 @@ if [ $PLATFORM == 'linux' ]; then
     function gvim() {(/usr/bin/gvim -f "$@" &)}
 elif [ $PLATFORM == 'mac' ]; then
     alias gvim="mvim"
+    alias vim="mvim -v"
 fi
 
 
