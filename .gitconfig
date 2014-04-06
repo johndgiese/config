@@ -18,4 +18,4 @@
 [credential]
 	helper = cache --timeout=14400
 [push]
-    default = simple
+    default = upstream
