@@ -110,9 +110,9 @@
 	<key>NSWindow Frame NSColorPanel</key>
 	<string>431 356 201 302 0 0 1920 1058 </string>
 	<key>NSWindow Frame Preferences</key>
-	<string>439 284 924 485 0 0 1920 1058 </string>
+	<string>440 284 924 485 0 0 1920 1058 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>1192 359 568 488 0 0 1920 1058 </string>
+	<string>631 183 1036 684 0 0 1920 1058 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>779 125 1060 516 0 0 1920 1058 </string>
 	<key>New Bookmarks</key>
@@ -292,7 +292,7 @@
 			<key>Blinking Cursor</key>
 			<false/>
 			<key>Blur</key>
-			<true/>
+			<false/>
 			<key>Blur Radius</key>
 			<real>6.8481183052062988</real>
 			<key>Bold Color</key>
@@ -827,11 +827,11 @@
 			<key>Terminal Type</key>
 			<string>xterm</string>
 			<key>Transparency</key>
-			<real>0.14133228361606598</real>
+			<real>0.0</real>
 			<key>Triggers</key>
 			<array/>
 			<key>Unlimited Scrollback</key>
-			<false/>
+			<true/>
 			<key>Use Bold Font</key>
 			<false/>
 			<key>Use Bright Bold</key>
@@ -916,7 +916,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2014-04-04T18:12:19Z</date>
+	<date>2014-04-05T20:36:14Z</date>
 	<key>SavePasteHistory</key>
 	<false/>
 	<key>Show Toolbelt</key>
