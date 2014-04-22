@@ -152,4 +152,6 @@ alias glog="git log --oneline"
 function gclone (){(git clone git@github.com:johndgiese/$1.git $2)}
 function gcloneh (){(git clone https://github.com/johndgiese/$1 $2)}
 
+## MAN
+export MANWIDTH=100
 
