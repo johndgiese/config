@@ -155,3 +155,6 @@ function gcloneh (){(git clone https://github.com/johndgiese/$1 $2)}
 ## MAN
 export MANWIDTH=100
 
+## TMUX
+alias tma="tmux attach -t"
+alias tml="tmux list-sessions"
