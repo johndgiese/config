@@ -11,7 +11,7 @@
 # ignore collected static files
 --ignore-dir=collected_static
 
---type=add=css=.less,.scss,.sass
+--type-add=css=.less,.scss,.sass
 --type-add=ruby=.haml
 --type-set=coffee=.coffee
 --type-set=markdown=.md,.markdown
