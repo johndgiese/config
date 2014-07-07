@@ -16,3 +16,8 @@
 --type-set=coffee=.coffee
 --type-set=markdown=.md,.markdown
 --type-set=json=.json
+
+# ignore javascript directories
+--ignore-dir=_dist
+--ignore-dir=_vendor
+--ignore-dir=node_modules
