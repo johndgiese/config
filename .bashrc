@@ -159,3 +159,6 @@ export MANWIDTH=100
 alias tma="tmux attach -t"
 alias tml="tmux list-sessions"
 alias tmn="tmux new-session -s"
+
+## FIND REPLACE
+function sub (){(ack -l $1 | xargs sed -i '' "s/$1/$2/g")}
