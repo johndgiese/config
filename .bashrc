@@ -154,7 +154,6 @@ export MANWIDTH=100
 ## TMUX
 alias tma="tmux attach -t"
 . ~/.bash/complete/tma
-
 alias tml="tmux list-sessions"
 alias tmn="tmux new-session -s"
 
