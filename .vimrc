@@ -8,7 +8,7 @@ set showmode
 set tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 set history=1000
 set encoding=utf-8
-set noswapfilePPINGS
+set noswapfile
 
 " better <ESC> (to go back to normal mode from insert mode)
 inoremap jk <ESC>
