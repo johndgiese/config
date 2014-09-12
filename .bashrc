@@ -132,6 +132,12 @@ if [ $PLATFORM != 'windows' ]; then
         builtin cd $@
         if [ -f "env/bin/activate" ]; then
             source env/bin/activate
+        elif [ -f "../env/bin/activate" ]; then
+            source ../env/bin/activate
+        elif [ -f "../../env/bin/activate" ]; then
+            source ../../env/bin/activate
+        elif [ -f "../../../env/bin/activate" ]; then
+            source ../../../env/bin/activate
         fi
     }
 fi
