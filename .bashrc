@@ -9,6 +9,7 @@ if [ $(uname) == 'Linux' ]; then
     PLATFORM='linux'
 elif [ $(uname) == 'Darwin' ]; then
     PLATFORM='mac'
+    export TERM='xterm-256color'
 elif [ $(uname) == 'NT' ]; then
     PLATFORM='windows'
     export TERM='cygwin'
@@ -62,11 +63,11 @@ alias ....="cd ../../.."
 
 
 ## COLORS
-export CLICOLOR=yes
-export LSCOLORS=ExFxBxDxCxegedabagacad
 
 if [ $PLATFORM == 'linux' ]; then
     alias ls='ls --color=auto'
+elif [ $PLATFORM == 'mac' ]; then
+    export CLICOLOR=yes
 fi
 
 
@@ -76,6 +77,7 @@ if [ $PLATFORM == 'linux' ]; then
     function gvim() {(/usr/bin/gvim -f "$@" &)}
 elif [ $PLATFORM == 'mac' ]; then
     alias gvim="mvim"
+    alias vim="mvim -v"
 fi
 
 
@@ -99,10 +101,9 @@ elif [ $PLATFORM == 'windows' ]; then
 fi
 
 ## WEB-DEVELOPMENT
-alias dj="python manage.py $@"
-function djrs() {(python manage.py runserver 8000)}
-function djb() {(chromium-browser http://127.0.0.1:8000)}
+. ~/.bash/complete/django.sh # setup bash autocomplete
 
+function djrs() {(python manage.py runserver $@)}
 
 ## MAC STUFF
 if [ $PLATFORM == 'mac' ]; then
@@ -117,6 +118,8 @@ if [ $PLATFORM == 'mac' ]; then
     # ruby
     export PATH=/usr/local/opt/ruby/bin:$PATH
 
+    # php
+    export PATH="$(brew --prefix josegonzalez/php/php55)/bin:$PATH"
 fi
 
 ## PYTHON
@@ -129,6 +132,12 @@ if [ $PLATFORM != 'windows' ]; then
         builtin cd $@
         if [ -f "env/bin/activate" ]; then
             source env/bin/activate
+        elif [ -f "../env/bin/activate" ]; then
+            source ../env/bin/activate
+        elif [ -f "../../env/bin/activate" ]; then
+            source ../../env/bin/activate
+        elif [ -f "../../../env/bin/activate" ]; then
+            source ../../../env/bin/activate
         fi
     }
 fi
@@ -138,13 +147,24 @@ export PATH=$PATH:$HOME/.cabal/bin
 
 
 ## GIT
-alias gc="git commit -m"
+alias gc="git commit"
 alias gs="git status"
+alias gb="git branch"
+alias gd="git diff"
+alias gch="git checkout"
 alias gpush="git push origin master"
 alias gpull="git pull origin master"
-alias gdiff="git diff"
 alias glog="git log --oneline"
 function gclone (){(git clone git@github.com:johndgiese/$1.git $2)}
 function gcloneh (){(git clone https://github.com/johndgiese/$1 $2)}
 
+## MAN
+export MANWIDTH=100
 
+## TMUX
+alias tma="tmux attach -t"
+alias tml="tmux list-sessions"
+alias tmn="tmux new-session -s"
+
+## FIND REPLACE
+function sub (){(ack -l $1 | xargs sed -i '' "s/$1/$2/g")}

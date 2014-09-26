@@ -1,5 +1,5 @@
 [user]
-    name = johndgiese
+    name = J. David Giese
     email = johndgiese@gmail.com
 [color]
     diff = true
@@ -10,9 +10,12 @@
 [credential]
 [core]
 	editor = vim
+	autcrlf = false
 [init]
 	templatedir = ~/.git_template
 [alias]
 	ctags = !.git/hooks/ctags
 [credential]
-	helper = cache --timeout=14400
+	helper = cache --timeout=144000
+[push]
+    default = upstream
