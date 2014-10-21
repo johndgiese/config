@@ -19,3 +19,5 @@
 	helper = cache --timeout=144000
 [push]
     default = upstream
+[merge]
+    tool = vimdiff
