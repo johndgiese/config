@@ -165,3 +165,6 @@ alias tmn="tmux new-session -s"
 
 ## FIND REPLACE
 function sub (){(ack -l $1 | xargs sed -i '' "s/$1/$2/g")}
+
+## CLEAN WHITESPACE
+alias cws="sed -i -e 's///g' -e 's/ *$//g'"
