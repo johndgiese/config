@@ -118,8 +118,6 @@ if [ $PLATFORM == 'mac' ]; then
     # ruby
     export PATH=/usr/local/opt/ruby/bin:$PATH
 
-    # php
-    export PATH="$(brew --prefix josegonzalez/php/php55)/bin:$PATH"
 fi
 
 ## PYTHON
