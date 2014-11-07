@@ -127,7 +127,7 @@ if [ $PLATFORM != 'windows' ]; then
 
     # auto enter virtual environments
     cd () {
-        builtin cd $@
+        builtin cd "$@"
         if [ -f "env/bin/activate" ]; then
             source env/bin/activate
         elif [ -f "../env/bin/activate" ]; then
