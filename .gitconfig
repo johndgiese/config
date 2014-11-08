@@ -7,7 +7,6 @@
     status = true
     branch = true
 	us = true
-[credential]
 [core]
 	editor = vim
 	autcrlf = false
@@ -16,7 +15,7 @@
 [alias]
 	ctags = !.git/hooks/ctags
 [credential]
-	helper = cache --timeout=144000
+	helper = cache --timeout 604800
 [push]
     default = upstream
 [merge]
