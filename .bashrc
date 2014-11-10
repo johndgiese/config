@@ -10,9 +10,6 @@ if [ $(uname) == 'Linux' ]; then
 elif [ $(uname) == 'Darwin' ]; then
     PLATFORM='mac'
     export TERM='xterm-256color'
-elif [ $(uname) == 'NT' ]; then
-    PLATFORM='windows'
-    export TERM='cygwin'
 else
     PLATFORM='unknown'
 fi
@@ -91,13 +88,6 @@ if [ $PLATFORM == 'linux' ]; then
     }
 elif [ $PLATFORM == 'mac' ]; then
     alias op="open"
-elif [ $PLATFORM == 'windows' ]; then
-    function op() {
-        for var in "$@"
-        do
-            start "$var"
-        done
-    }
 fi
 
 ## WEB-DEVELOPMENT
@@ -122,23 +112,19 @@ fi
 
 ## PYTHON
 alias ipython='ipython --profile=david'
-if [ $PLATFORM != 'windows' ]; then
-    export PYTHONPATH=~/Code/python:$PYTHONPATH
-
-    # auto enter virtual environments
-    cd () {
-        builtin cd "$@"
-        if [ -f "env/bin/activate" ]; then
-            source env/bin/activate
-        elif [ -f "../env/bin/activate" ]; then
-            source ../env/bin/activate
-        elif [ -f "../../env/bin/activate" ]; then
-            source ../../env/bin/activate
-        elif [ -f "../../../env/bin/activate" ]; then
-            source ../../../env/bin/activate
-        fi
-    }
-fi
+# auto enter virtual environments
+cd () {
+    builtin cd "$@"
+    if [ -f "env/bin/activate" ]; then
+        source env/bin/activate
+    elif [ -f "../env/bin/activate" ]; then
+        source ../env/bin/activate
+    elif [ -f "../../env/bin/activate" ]; then
+        source ../../env/bin/activate
+    elif [ -f "../../../env/bin/activate" ]; then
+        source ../../../env/bin/activate
+    fi
+}
 
 
 

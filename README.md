@@ -16,7 +16,3 @@ Everything is stored in a repo with the .gitignore file set to ignore everything
 If you want to use the basic vimrc create a symlink
 
     ln -s .vimrc-basic .vimrc
-
-# Windows Specific
-
-If you want to use Console2 configurations, make a symbolic link called console.xml in the console2 install location to .consolerc.
