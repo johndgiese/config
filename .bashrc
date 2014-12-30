@@ -140,9 +140,10 @@ if [ $PLATFORM != 'windows' ]; then
     }
 fi
 
+
+
 ## CABAL
 export PATH=$PATH:$HOME/.cabal/bin
-
 
 ## GIT
 alias gc="git commit"
@@ -166,3 +167,22 @@ function sub (){(ack -l $1 | xargs sed -i '' "s/$1/$2/g")}
 
 ## CLEAN WHITESPACE
 alias cws="sed -i -e 's///g' -e 's/ *$//g'"
+
+## COOL SHORTCUT COMMANDS
+cds () {
+    sub="$(find . -name $1 -type d -print -quit)"
+    if [ -n "$sub" ]; then
+        cd $sub
+    else
+        echo "No subdirectory named $1"
+    fi
+}
+
+vims () {
+    sub="$(find . -name $1 -type f -print -quit)"
+    if [ -n "$sub" ]; then
+        vim $sub
+    else
+        echo "No file named $1"
+    fi
+}
