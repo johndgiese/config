@@ -103,7 +103,7 @@ if [ $PLATFORM == 'mac' ]; then
     export PATH=/usr/local/sbin:$PATH
 
     # add node binaries
-    export PATH=/usr/local/share/npm/bin:$PATH
+    export PATH=$HOME/.node/bin:$PATH
 
     # ruby
     export PATH=/usr/local/opt/ruby/bin:$PATH
@@ -152,7 +152,7 @@ alias tmn="tmux new-session -s"
 function sub (){(ack -l $1 | xargs sed -i '' "s/$1/$2/g")}
 
 ## CLEAN WHITESPACE
-alias cws="sed -i -e 's///g' -e 's/ *$//g'"
+alias cws="sed -i.bak -e 's///g' -e 's/ *$//g'"
 
 ## COOL SHORTCUT COMMANDS
 cds () {
@@ -172,3 +172,6 @@ vims () {
         echo "No file named $1"
     fi
 }
+
+## Ansible
+alias ap="ansible-playbook -l"
