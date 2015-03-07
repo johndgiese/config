@@ -140,6 +140,12 @@ alias gch="git checkout"
 alias glog="git log --oneline"
 alias gcp="git cherry-pick -x"
 
+ghc () {
+    repo=$1
+    shift
+    git clone git@github.com:$repo $*
+}
+
 ## MAN
 export MANWIDTH=100
 
