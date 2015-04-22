@@ -181,3 +181,8 @@ vims () {
 
 ## Ansible
 alias ap="ansible-playbook -l"
+
+## Hook for local bash stuff
+if [ -f ~/.bashrc_local ]; then
+    source ~/.bashrc_local
+fi
