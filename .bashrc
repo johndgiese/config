@@ -133,24 +133,32 @@ export PATH=$PATH:$HOME/.cabal/bin
 
 ## GIT
 alias gc="git commit"
-alias gs="git status"
-alias gb="git branch"
-alias gd="git diff"
-alias gch="git checkout"
-alias glog="git log --oneline"
-alias gcp="git cherry-pick -x"
+__git_complete gc _git_commit
 
-ghubc () {
-    repo=$1
-    shift
-    git clone git@github.com:$repo $*
-}
+alias gs="git status"
+
+alias gb="git branch"
+__git_complete gb _git_branch
+
+alias gd="git diff"
+__git_complete gd _git_diff
+
+alias gch="git checkout"
+__git_complete gch _git_checkout
+
+alias glog="git log --oneline"
+
+alias gcp="git cherry-pick -x"
+__git_complete gcp _git_cherry_pick
+
 
 ## MAN
 export MANWIDTH=100
 
 ## TMUX
 alias tma="tmux attach -t"
+. ~/.bash/complete/tma
+
 alias tml="tmux list-sessions"
 alias tmn="tmux new-session -s"
 
