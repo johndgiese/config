@@ -194,3 +194,16 @@ alias ap="ansible-playbook -l"
 if [ -f ~/.bashrc_local ]; then
     source ~/.bashrc_local
 fi
+
+## Tmux auto login
+# If tmux command exists, and you aren't in a session, then create one using
+# the current user's name (or join it if it exists)
+if hash tmux 2>/dev/null; then
+    if [ -z "$TMUX" ]; then
+        if tmux has-session -t $USER; then
+            tmux attach-session -t $USER
+        else
+            tmux new-session -s $USER
+        fi
+    fi
+fi
