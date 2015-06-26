@@ -133,24 +133,20 @@ export PATH=$PATH:$HOME/.cabal/bin
 
 ## GIT
 alias gc="git commit"
-__git_complete gc _git_commit
-
 alias gs="git status"
-
 alias gb="git branch"
-__git_complete gb _git_branch
-
 alias gd="git diff"
-__git_complete gd _git_diff
-
 alias gch="git checkout"
-__git_complete gch _git_checkout
-
 alias glog="git log --oneline"
-
 alias gcp="git cherry-pick -x"
-__git_complete gcp _git_cherry_pick
 
+if hash __git_complete 2>/dev/null; then
+    __git_complete gc _git_commit
+    __git_complete gb _git_branch
+    __git_complete gd _git_diff
+    __git_complete gch _git_checkout
+    __git_complete gcp _git_cherry_pick
+fi
 
 ## MAN
 export MANWIDTH=100
