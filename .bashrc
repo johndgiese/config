@@ -194,7 +194,7 @@ fi
 # If tmux command exists, and you aren't in a session, then create one using
 # the current user's name (or join it if it exists)
 if hash tmux 2>/dev/null; then
-    if [ -z "$TMUX" ]; then
+    if [ -z "$TMUX" ] && [ -n "$SSH_CLIENT" ]; then
         if tmux has-session -t $USER; then
             tmux attach-session -t $USER
         else
