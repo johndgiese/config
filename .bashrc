@@ -17,8 +17,9 @@ fi
 
 ## BASH HISTORY
 HISTCONTROL=ignoreboth
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=5000
+HISTFILESIZE=10000
+HISTIGNORE='&:?:??:mysql*-p[! ]*'
 shopt -s histappend
 
 
