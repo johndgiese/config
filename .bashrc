@@ -138,6 +138,7 @@ alias gs="git status"
 alias gb="git branch"
 alias gd="git diff"
 alias gch="git checkout"
+alias grh="git reset --hard"
 alias glog="git log --oneline"
 alias gcp="git cherry-pick -x"
 
