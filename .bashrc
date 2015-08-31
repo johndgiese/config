@@ -168,14 +168,24 @@ function sub (){(ack -l $1 | xargs sed -i '' "s/$1/$2/g")}
 alias cws="sed -i.bak -e 's///g' -e 's/ *$//g'"
 
 # watch a directory and run the specified command if any files change
-wd () {
-    directory=$1
-    shift
-    command=$@
-    while inotifywait -r -q --format '' -e modify -e create -e delete $directory; do
-        $command
-    done
-}
+
+if [ $PLATFORM == 'linux' ]; then
+    wd () {
+        directory=$1
+        shift
+        command=$@
+        while inotifywait -r -q --format '' -e modify -e create -e delete $directory; do
+            $command
+        done
+    }
+elif [ $PLATFORM == 'mac' ]; then
+    wd () {
+        directory=$1
+        shift
+        command=$@
+        fswatch -0 -r -o $directory | xargs -0 -n 1 -I % $command || true
+    }
+fi
 
 ## COOL SHORTCUT COMMANDS
 cds () {
