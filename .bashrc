@@ -58,10 +58,10 @@ fi
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
+alias .....="cd ../../../.."
 
 
 ## COLORS
-
 if [ $PLATFORM == 'linux' ]; then
     alias ls='ls --color=auto'
 elif [ $PLATFORM == 'mac' ]; then
@@ -71,10 +71,7 @@ fi
 
 ## VIM
 export EDITOR=vim
-if [ $PLATFORM == 'linux' ]; then
-    function gvim() {(/usr/bin/gvim -f "$@" &)}
-elif [ $PLATFORM == 'mac' ]; then
-    alias gvim="mvim"
+if [ $PLATFORM == 'mac' ]; then
     alias vim="mvim -v"
 fi
 
