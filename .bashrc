@@ -183,7 +183,7 @@ elif [ $PLATFORM == 'mac' ]; then
         directory=$1
         shift
         command=$@
-        fswatch -0 -r -o $directory | xargs -0 -n 1 -I % $command || true
+        fswatch -0 -r -o $directory -e __pycache__ -e .cache | xargs -0 -n 1 -I % $command || true
     }
 fi
 
@@ -226,3 +226,10 @@ if hash tmux 2>/dev/null; then
         fi
     fi
 fi
+
+# added by travis gem
+[ -f /Users/david/.travis/travis.sh ] && source /Users/david/.travis/travis.sh
+
+## NODE
+export NVM_DIR=~/.nvm
+. $(brew --prefix nvm)/nvm.sh
