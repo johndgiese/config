@@ -65,13 +65,6 @@ elif [ $PLATFORM == 'mac' ]; then
 fi
 
 
-## VIM
-export EDITOR=vim
-if [ $PLATFORM == 'mac' ]; then
-    alias vim="mvim -v"
-fi
-
-
 ## OPEN FUNCTION
 if [ $PLATFORM == 'linux' ]; then
     function op() {
@@ -88,9 +81,9 @@ fi
 ## PYTHON
 alias ipython='ipython --profile=david'
 
-# auto enter virtual environments
-cd () {
-    builtin cd "$@"
+# VIRTUALENV
+cde () {
+    cd "$@"
     if [ -f "env/bin/activate" ]; then
         source env/bin/activate
     elif [ -f "../env/bin/activate" ]; then
