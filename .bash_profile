@@ -1,6 +1,5 @@
-set -eo pipefail
+## OPTIONS
 shopt -s checkwinsize
-
 
 ## BASHRC
 if [ -f ~/.bashrc ]; then
@@ -81,17 +80,20 @@ fi
 ## PYTHON
 alias ipython='ipython --profile=david'
 
-# VIRTUALENV
-cde () {
-    cd "$@"
-    if [ -f "env/bin/activate" ]; then
-        source env/bin/activate
-    elif [ -f "../env/bin/activate" ]; then
-        source ../env/bin/activate
-    elif [ -f "../../env/bin/activate" ]; then
-        source ../../env/bin/activate
-    elif [ -f "../../../env/bin/activate" ]; then
-        source ../../../env/bin/activate
+# TOGGLE VIRTUALENV
+tve () {
+    if [ -z "$VIRTUAL_ENV" ]; then
+        if [ -f "env/bin/activate" ]; then
+            source env/bin/activate
+        elif [ -f "../env/bin/activate" ]; then
+            source ../env/bin/activate
+        elif [ -f "../../env/bin/activate" ]; then
+            source ../../env/bin/activate
+        elif [ -f "../../../env/bin/activate" ]; then
+            source ../../../env/bin/activate
+        fi
+    else
+        deactivate
     fi
 }
 
