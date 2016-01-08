@@ -80,8 +80,8 @@ fi
 ## PYTHON
 alias ipython='ipython --profile=david'
 
-# TOGGLE VIRTUALENV
-tve () {
+# VIRTUALENV TOGGLE 
+vet () {
     if [ -z "$VIRTUAL_ENV" ]; then
         if [ -f "env/bin/activate" ]; then
             source env/bin/activate
@@ -107,6 +107,7 @@ alias gc="git commit"
 alias gs="git status"
 alias gb="git branch"
 alias gd="git diff"
+alias gds="git diff --staged"
 alias gp="git push"
 alias gch="git checkout"
 alias grh="git reset --hard"
