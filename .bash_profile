@@ -110,19 +110,24 @@ function djrs() {(python manage.py runserver $@)}
 
 ## GIT
 alias gc="git commit"
+alias ga="git add"
 alias gs="git status"
 alias gb="git branch"
+alias gm="git merge"
 alias gd="git diff"
 alias gds="git diff --staged"
 alias gp="git push"
+alias gl="git pull"
 alias gch="git checkout"
 alias grh="git reset --hard"
 alias glog="git log --oneline"
-alias gcp="git cherry-pick -x"
+alias gcp="git cherry-pick"
 
 if hash __git_complete 2>/dev/null; then
     __git_complete gc _git_commit
+    __git_complete ga _git_add
     __git_complete gb _git_branch
+    __git_complete gm _git_merge
     __git_complete gd _git_diff
     __git_complete gch _git_checkout
     __git_complete gcp _git_cherry_pick
