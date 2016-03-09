@@ -35,10 +35,12 @@ fi
 
 ## HISTORY
 HISTCONTROL=ignoreboth
-HISTSIZE=5000
-HISTFILESIZE=10000
+HISTSIZE=500000
+HISTFILESIZE=100000
 HISTIGNORE='&:?:??:mysql*-p[! ]*'
 shopt -s histappend
+shopt -s cmdhist
+PROMPT_COMMAND='history -a'
 
 
 ## AUTOCOMPLETE
