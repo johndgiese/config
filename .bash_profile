@@ -83,7 +83,10 @@ fi
 ## PYTHON
 alias ipython='ipython --profile=david'
 
-# VIRTUALENV TOGGLE 
+if which pyenv > /dev/null; then
+    eval "$(pyenv init -)";
+fi
+
 vet () {
     if [ -z "$VIRTUAL_ENV" ]; then
         if [ -f "env/bin/activate" ]; then
