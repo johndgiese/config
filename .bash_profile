@@ -170,7 +170,7 @@ if [ $PLATFORM == 'linux' ]; then
     wd () {
         directory=$1
         shift
-        command=$@
+        command="$@"
         while inotifywait -r -q --format '' -e modify -e create -e delete $directory; do
             $command
         done
@@ -179,7 +179,7 @@ elif [ $PLATFORM == 'mac' ]; then
     wd () {
         directory=$1
         shift
-        command=$@
+        command="$@"
         fswatch -0 -r -o $directory -e __pycache__ -e .cache | xargs -0 -n 1 -I % $command || true
     }
 fi
