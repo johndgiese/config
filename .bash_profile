@@ -56,7 +56,7 @@ shopt -s autocd 2> /dev/null
 shopt -s dirspell 2> /dev/null
 shopt -s cdspell 2> /dev/null
 
-CDPATH=".:~/projects"
+CDPATH=".:~/Projects"
 
 
 ## COLORS
