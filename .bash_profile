@@ -58,6 +58,10 @@ shopt -s cdspell 2> /dev/null
 
 CDPATH=".:~/Projects"
 
+alias ..="cd ../"
+alias ...="cd ../../"
+alias ....="cd ../../../"
+alias .....="cd ../../../../"
 
 ## COLORS
 if [ $PLATFORM == 'linux' ]; then
