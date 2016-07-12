@@ -140,6 +140,11 @@ if hash __git_complete 2>/dev/null; then
 fi
 
 
+## DOCKER
+alias drm='docker rm $(docker ps -a -q) ; docker rmi -f $(docker images -q -a -f dangling=true)'
+alias dc='docker-compose'
+
+
 ## MAN
 export MANWIDTH=100
 
