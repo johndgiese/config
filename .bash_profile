@@ -164,7 +164,7 @@ fi
 
 
 ## FIND REPLACE
-function sub (){(ag -l $1 | xargs sed -i '' "s/$1/$2/g")}
+function sub (){(ag -l $1 | xargs sed -i'' "s/$1/$2/g")}
 
 
 ## CLEAN WHITE SPACE
