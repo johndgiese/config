@@ -116,6 +116,7 @@ function djrs() {(python manage.py runserver $@)}
 
 ## GIT
 alias gc="git commit"
+alias gca="git commit --amend"
 alias ga="git add"
 alias gs="git status"
 alias gb="git branch"
