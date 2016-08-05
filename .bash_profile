@@ -189,18 +189,20 @@ alias cws="sed -i.bak -e 's///g' -e 's/ *$//g'"
 if [ $PLATFORM == 'linux' ]; then
     wd () {
         directory=$1
+        excludes=$(find . -exec git check-ignore {} \; -exec echo -e {} \; -prune)
         shift
         command="$@"
-        while inotifywait -r -q --format '' -e modify -e create -e delete $directory; do
-            $command
+        while inotifywait -r -q --format '' $excludes $directory; do
+            eval $command || true
         done
     }
 elif [ $PLATFORM == 'mac' ]; then
     wd () {
         directory=$1
+        excludes=$(find . -exec git check-ignore {} \; -exec echo -e {} \; -prune)
         shift
         command="$@"
-        fswatch -0 -r -o $directory -e __pycache__ -e .cache | xargs -0 -n 1 -I % $command || true
+        fswatch -0 -r -o $directory $excludes | xargs -0 -n 1 -I % $command || true
     }
 fi
 
