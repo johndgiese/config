@@ -11,17 +11,3 @@ c.TerminalIPythonApp.display_banner = False
 
 # 
 c.TerminalInteractiveShell.separate_in = ''
-
-
-## PromptManager configuration
-# This is the primary interface for producing IPython's prompts.
-
-# Output prompt. '\#' will be transformed to the prompt number
-c.PromptManager.out_template = '[\\#] '
-
-# Continuation prompt.
-c.PromptManager.in2_template = '.\\D. '
-
-# Input prompt.  '\#' will be transformed to the prompt number
-c.PromptManager.in_template = '[\\#] '
-
