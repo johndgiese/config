@@ -84,8 +84,9 @@ elif [ $PLATFORM == 'mac' ]; then
 fi
 
 
-## PYTHON
+## PYTHON + CONDA
 alias ipython='ipython --profile=david'
+export PATH="~/miniconda3/bin:$PATH"
 
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
