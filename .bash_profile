@@ -110,6 +110,15 @@ vet () {
     fi
 }
 
+# enter conda and nvm if necessary
+envs () {
+    if [ -f ".nvmrc" ]; then
+        nvm use
+    fi
+
+    . activate ${PWD##*/}
+}
+
 . ~/.bash/complete/django.sh
 
 function djrs() {(python manage.py runserver $@)}
