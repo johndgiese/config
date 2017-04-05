@@ -1,6 +1,7 @@
 ## OPTIONS
 shopt -s checkwinsize
 
+
 ## BASHRC
 if [ -f ~/.bashrc ]; then
     source ~/.bashrc
@@ -179,19 +180,10 @@ if hash tmux 2>/dev/null; then
 fi
 
 
-## SUBSTITUTE
+## SUBSTITUTION UTILS
 function sub (){(ag -l "$1" | xargs sed -i'' "s/$1/$2/g")}
-
-
-## RENAME
 function ren (){(find . -type f -name "*$1*" -exec rename -s $1 $2 {} \;)}
-
-
-# SUBSTITUTE AND RENAME
 function sar (){(sub "$1" "$2" ; ren "$1" "$2")}
-
-
-## CLEAN WHITE SPACE
 alias cws="sed -i.bak -e 's///g' -e 's/ *$//g'"
 
 
