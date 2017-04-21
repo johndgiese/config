@@ -162,21 +162,32 @@ export MANWIDTH=100
 
 
 ## TMUX
-alias tma="tmux attach -t"
-. ~/.bash/complete/tma
 alias tml="tmux list-sessions"
-alias tmn="tmux new-session -s"
+. ~/.bash/complete/tma
 
-# If tmux command exists, and you aren't in a session, then create one using
-# the current user's name (or join it if it exists)
-if hash tmux 2>/dev/null; then
-    if [ -z "$TMUX" ] && [ -n "$SSH_CLIENT" ]; then
-        if tmux has-session -t $USER; then
-            tmux attach-session -t $USER
-        else
-            tmux new-session -s $USER
+function tma() {
+    current_directory=${PWD##*/}
+    current_directory_specials_removed=${current_directory//[.]/_}
+    tmux_create_or_join ${1:-$current_directory_specials_removed}
+}
+
+function tmux_create_or_join() {
+    if hash tmux 2>/dev/null; then
+        if [ -z "$TMUX" ]; then
+            if tmux has-session -t $1; then
+                tmux attach-session -t $1
+            else
+                tmux new-session -s $1
+            fi
         fi
+    else
+        echo 'tmux is not installed' && exit 1
     fi
+}
+
+# Auto join a tmux session upon ssh-ing into a server
+if [ -n "$SSH_CLIENT" ]; then
+    tmux_create_or_join $USER
 fi
 
 
