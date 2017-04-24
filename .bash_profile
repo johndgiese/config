@@ -1,6 +1,7 @@
 ## OPTIONS
 shopt -s checkwinsize
 
+
 ## BASHRC
 if [ -f ~/.bashrc ]; then
     source ~/.bashrc
@@ -110,6 +111,15 @@ vet () {
     fi
 }
 
+# enter conda and nvm if necessary
+envs () {
+    if [ -f ".nvmrc" ]; then
+        nvm use
+    fi
+
+    . activate ${PWD##*/}
+}
+
 . ~/.bash/complete/django.sh
 
 function djrs() {(python manage.py runserver $@)}
@@ -152,37 +162,39 @@ export MANWIDTH=100
 
 
 ## TMUX
-alias tma="tmux attach -t"
-. ~/.bash/complete/tma
 alias tml="tmux list-sessions"
-alias tmn="tmux new-session -s"
+. ~/.bash/complete/tma
 
-# If tmux command exists, and you aren't in a session, then create one using
-# the current user's name (or join it if it exists)
-if hash tmux 2>/dev/null; then
-    if [ -z "$TMUX" ] && [ -n "$SSH_CLIENT" ]; then
-        if tmux has-session -t $USER; then
-            tmux attach-session -t $USER
-        else
-            tmux new-session -s $USER
+function tma() {
+    current_directory=${PWD##*/}
+    current_directory_specials_removed=${current_directory//[.]/_}
+    tmux_create_or_join ${1:-$current_directory_specials_removed}
+}
+
+function tmux_create_or_join() {
+    if hash tmux 2>/dev/null; then
+        if [ -z "$TMUX" ]; then
+            if tmux has-session -t $1; then
+                tmux attach-session -t $1
+            else
+                tmux new-session -s $1
+            fi
         fi
+    else
+        echo 'tmux is not installed' && exit 1
     fi
+}
+
+# Auto join a tmux session upon ssh-ing into a server
+if [ -n "$SSH_CLIENT" ]; then
+    tmux_create_or_join $USER
 fi
 
 
-## SUBSTITUTE
-function sub (){(ag -l $1 | xargs sed -i'' "s/$1/$2/g")}
-
-
-## RENAME
+## SUBSTITUTION UTILS
+function sub (){(ag -l "$1" | xargs sed -i'' "s/$1/$2/g")}
 function ren (){(find . -type f -name "*$1*" -exec rename -s $1 $2 {} \;)}
-
-
-# SUBSTITUTE AND RENAME
 function sar (){(sub "$1" "$2" ; ren "$1" "$2")}
-
-
-## CLEAN WHITE SPACE
 alias cws="sed -i.bak -e 's///g' -e 's/ *$//g'"
 
 
@@ -238,3 +250,7 @@ function nvm () {
 if [ -f ~/.bash_profile_local ]; then
     source ~/.bash_profile_local
 fi
+
+
+## SSH
+ssh-add
