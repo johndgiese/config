@@ -85,9 +85,8 @@ elif [ $PLATFORM == 'mac' ]; then
 fi
 
 
-## PYTHON + CONDA
+## PYTHON
 alias ipython='ipython --profile=david'
-export PATH="~/miniconda3/bin:$PATH"
 
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
@@ -95,30 +94,25 @@ if which pyenv > /dev/null; then
     eval "$(pyenv init -)";
 fi
 
-vet () {
-    if [ -z "$VIRTUAL_ENV" ]; then
-        if [ -f "env/bin/activate" ]; then
-            source env/bin/activate
-        elif [ -f "../env/bin/activate" ]; then
-            source ../env/bin/activate
-        elif [ -f "../../env/bin/activate" ]; then
-            source ../../env/bin/activate
-        elif [ -f "../../../env/bin/activate" ]; then
-            source ../../../env/bin/activate
-        fi
-    else
-        deactivate
-    fi
-}
+if which pyenv-virtualenv-init > /dev/null; then
+    eval "$(pyenv virtualenv-init -)"
+fi
 
-# enter conda and nvm if necessary
+if [ $PLATFORM == 'mac' ]; then
+    # necessary so that pyenv creates framework builds of python, which is in
+    # turn necessary so that vim can use python for auto complete, etc.
+    export PYTHON_CONFIGURE_OPTS="--enable-framework"
+fi
+
+# enter environments
 envs () {
     if [ -f ".nvmrc" ]; then
         nvm use
     fi
-
-    . activate ${PWD##*/}
 }
+
+
+## DJANGO
 
 . ~/.bash/complete/django.sh
 
@@ -229,10 +223,6 @@ cds () {
         echo "No subdirectory named $1"
     fi
 }
-
-
-## ANSIBLE
-alias ap="ansible-playbook -l"
 
 
 ## NVM
