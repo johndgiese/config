@@ -135,6 +135,10 @@ alias grh="git reset --hard"
 alias glog="git log --oneline"
 alias gcp="git cherry-pick"
 
+function gpb() {
+    git push --set-upstream origin `git rev-parse --abbrev-ref HEAD`
+}
+
 if hash __git_complete 2>/dev/null; then
     __git_complete gc _git_commit
     __git_complete ga _git_add
@@ -244,3 +248,8 @@ fi
 
 ## SSH
 ssh-add
+
+
+## C++
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/
+export PATH="/usr/local/opt/qt/bin:$PATH"
