@@ -20,10 +20,7 @@ fi
 
 
 ## PATH
-if [ $PLATFORM == 'mac' ]; then
-    export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/ruby/bin:$PATH
-fi
-export PATH=$PATH:$HOME/.node/bin
+export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/ruby/bin:$PATH:$HOME/.node/bin
 
 
 ## PROMPT
