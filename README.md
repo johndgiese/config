@@ -7,7 +7,7 @@ Everything is stored in a repo with the .gitignore file set to ignore everything
 ## Installation
 
     cd ~
-    git clone https://github.com/johndgiese/config
+    git clone git@github.com:johndgiese/config.git
     cd config
     mv * .[^.]* ..
     cd ..
