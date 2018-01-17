@@ -83,8 +83,6 @@ fi
 
 
 ## PYTHON
-alias ipython='ipython --profile=david'
-
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 if which pyenv > /dev/null; then
@@ -100,20 +98,6 @@ if [ $PLATFORM == 'mac' ]; then
     # turn necessary so that vim can use python for auto complete, etc.
     export PYTHON_CONFIGURE_OPTS="--enable-framework"
 fi
-
-# enter environments
-envs () {
-    if [ -f ".nvmrc" ]; then
-        nvm use
-    fi
-}
-
-
-## DJANGO
-
-. ~/.bash/complete/django.sh
-
-function djrs() {(python manage.py runserver $@)}
 
 
 ## GIT
@@ -147,18 +131,12 @@ if hash __git_complete 2>/dev/null; then
 fi
 
 
-## DOCKER
-alias drm='docker rm $(docker ps -a -q) ; docker rmi -f $(docker images -q -a -f dangling=true)'
-alias dc='docker-compose'
-
-
 ## MAN
 export MANWIDTH=100
 
 
 ## TMUX
 alias tml="tmux list-sessions"
-. ~/.bash/complete/tma
 
 function tma() {
     current_directory=${PWD##*/}
@@ -244,9 +222,8 @@ fi
 
 
 ## SSH
-ssh-add
+ssh-add 2>/dev/null
 
 
 ## C++
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/
-export PATH="/usr/local/opt/qt/bin:$PATH"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig/"

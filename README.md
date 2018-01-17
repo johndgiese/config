@@ -23,7 +23,7 @@ I use tmux most of the time.  My `.tmux.conf` file customizes tmux a bit.  My `.
 
 I also have two tmux aliases:
 
-- `tma` (for "tmux attach").  If no argument is given, attach to a session named after the current folder; if no such session exists, create one.  On my dev laptop I usually have a tmux session per project.  If you provide a single argument, attach to that name.  This alias has tab completion.
+- `tma` (for "tmux attach").  If no argument is given, attach to a session named after the current folder; if no such session exists, create one.  On my dev laptop I usually have a tmux session per project.  If you provide a single argument, attach to that name.
 - `tml` (for "tmux list").  List your current tmux sessions.
 
 ## SSH

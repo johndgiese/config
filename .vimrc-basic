@@ -44,14 +44,6 @@ nnoremap $ g$
 nnoremap ^ g^
 nnoremap 0 g0
 
-" jumping to definitions
-
-" goto definition
-nnoremap gd <C-]>zz
-
-" go back
-nnoremap gb <C-t>
-
 " making vim command line more like bash
 cnoremap <C-a> <Home>
 cnoremap <C-e> <End>
@@ -77,10 +69,3 @@ nnoremap <C-l> <C-w>l
 " Highlight whitespace with <leader>w, and remove with <leader>W
 nnoremap <leader>w :/\s\+$<CR>
 nnoremap <leader>W :%s/\s\+$//e<CR><silent>:noh<CR>
-
-" SPELLING
-" toggle spell checking
-nnoremap <silent> <leader>s :set spell!<CR>
-
-" correct the current word and move to the next one using ,S
-nnoremap <silent> <leader>S 1z=]s
