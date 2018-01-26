@@ -175,10 +175,14 @@ alias cws="sed -i.bak -e 's///g' -e 's/ *$//g'"
 if [ $PLATFORM == 'linux' ]; then
     wd () {
         directory=$1
-        excludes=$(find . -exec git check-ignore {} \; -exec echo -e {} \; -prune)
-        shift
-        command="$@"
-        while inotifywait -r -q --format '' $excludes $directory; do
+        echo "Watching directory $directory"
+        echo "Scanning for files to ignore"
+        # TODO: get this to ignore .git folder files too
+        excludes="$(find . -exec git check-ignore -q {} \; -exec echo --exclude {} \; -prune 2> /dev/null)"
+        events='-e move -e create -e delete -e modify'
+        command=$2
+        echo "Setting up watches"
+        while inotifywait -r -q --format '' $events $excludes $directory; do
             eval $command || true
         done
     }
