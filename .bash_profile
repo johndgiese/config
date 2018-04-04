@@ -112,7 +112,7 @@ alias gds="git diff --staged"
 alias gp="git push"
 alias gpu="git pull"
 alias gch="git checkout"
-alias grh="git reset --hard"
+alias grh="git reset HEAD"
 alias glog="git log --oneline"
 alias gcp="git cherry-pick"
 
