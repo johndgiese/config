@@ -212,8 +212,8 @@ cds () {
 function nvm () {
     if hash nvm 2>/dev/null; then
         # source only if the command is used
-        export NVM_DIR=~/.nvm
-        . $(brew --prefix nvm)/nvm.sh
+        export NVM_DIR="$HOME/.nvm"
+        . "/usr/local/opt/nvm/nvm.sh"
     fi
     nvm $@
 }
