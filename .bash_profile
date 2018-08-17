@@ -103,6 +103,7 @@ fi
 ## GIT
 alias gc="git commit"
 alias gca="git commit --amend"
+alias gcn="git commit --no-verify"
 alias ga="git add"
 alias gs="git status"
 alias gb="git branch"
