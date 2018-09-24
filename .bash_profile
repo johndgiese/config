@@ -226,9 +226,5 @@ if [ -f ~/.bash_profile_local ]; then
 fi
 
 
-## SSH
-ssh-add 2>/dev/null
-
-
 ## C++
 export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig/"
