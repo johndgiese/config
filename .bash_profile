@@ -54,8 +54,6 @@ shopt -s autocd 2> /dev/null
 shopt -s dirspell 2> /dev/null
 shopt -s cdspell 2> /dev/null
 
-CDPATH=".:~/Projects"
-
 alias ..="cd ../"
 alias ...="cd ../../"
 alias ....="cd ../../../"
@@ -98,6 +96,21 @@ if [ $PLATFORM == 'mac' ]; then
     # turn necessary so that vim can use python for auto complete, etc.
     export PYTHON_CONFIGURE_OPTS="--enable-framework"
 fi
+
+
+## NODE
+function nvm () {
+    if hash nvm 2>/dev/null; then
+        # source only if the command is used
+        export NVM_DIR="$HOME/.nvm"
+        . "/usr/local/opt/nvm/nvm.sh"
+    fi
+    nvm $@
+}
+
+
+## C++
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig/"
 
 
 ## GIT
@@ -209,22 +222,7 @@ cds () {
 }
 
 
-## NVM
-function nvm () {
-    if hash nvm 2>/dev/null; then
-        # source only if the command is used
-        export NVM_DIR="$HOME/.nvm"
-        . "/usr/local/opt/nvm/nvm.sh"
-    fi
-    nvm $@
-}
-
-
 ## LOCAL STUFF
 if [ -f ~/.bash_profile_local ]; then
     source ~/.bash_profile_local
 fi
-
-
-## C++
-export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig/"
