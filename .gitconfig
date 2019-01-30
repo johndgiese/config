@@ -6,22 +6,22 @@
     ui = true
     status = true
     branch = true
-	us = true
+    us = true
 [core]
-	editor = vim
-	autcrlf = false
+    editor = vim
+    autcrlf = false
 [init]
-	templatedir = ~/.git_template
+    templatedir = ~/.git_template
 [alias]
-	ctags = !.git/hooks/ctags
+    ctags = !.git/hooks/ctags
 [credential]
-	helper = cache --timeout 604800
+    helper = cache --timeout 604800
 [push]
     default = upstream
 [merge]
     tool = vimdiff
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
