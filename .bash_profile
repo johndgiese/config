@@ -182,33 +182,8 @@ fi
 function sub (){(ag -l "$1" | xargs sed -i '' "s/$1/$2/g")}
 function ren (){(find . -type f -name "*$1*" -exec rename "s/$1/$2/" {} \;)}
 function sar (){(sub "$1" "$2" ; ren "$1" "$2")}
-alias cws="sed -i.bak -e 's///g' -e 's/ *$//g'"
-
-
-## WATCH DIRECTORY
-if [ $PLATFORM == 'linux' ]; then
-    wd () {
-        directory=$1
-        echo "Watching directory $directory"
-        echo "Scanning for files to ignore"
-        # TODO: get this to ignore .git folder files too
-        excludes="$(find . -exec git check-ignore -q {} \; -exec echo --exclude {} \; -prune 2> /dev/null)"
-        events='-e move -e create -e delete -e modify'
-        command=$2
-        echo "Setting up watches"
-        while inotifywait -r -q --format '' $events $excludes $directory; do
-            eval $command || true
-        done
-    }
-elif [ $PLATFORM == 'mac' ]; then
-    wd () {
-        directory=$1
-        excludes=$(find . -exec git check-ignore {} \; -exec echo -e {} \; -prune)
-        shift
-        command="$@"
-        fswatch -0 -r -o $directory $excludes | xargs -0 -n 1 -I % $command || true
-    }
-fi
+alias cws="sed -i.bak -e 's/
+//g' -e 's/ *$//g'"
 
 
 ## CD SUB
