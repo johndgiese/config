@@ -113,6 +113,10 @@ function nvm () {
 export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig/"
 
 
+## VIM
+alias v="vim"
+
+
 ## GIT
 alias gc="git commit"
 alias gca="git commit --amend"
