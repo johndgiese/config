@@ -212,3 +212,6 @@ cds () {
 if [ -f ~/.bash_profile_local ]; then
     source ~/.bash_profile_local
 fi
+
+## GPG
+export GPG_TTY=$(tty)

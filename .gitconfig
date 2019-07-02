@@ -1,6 +1,7 @@
 [user]
-    name = J. David Giese
-    email = johndgiese@gmail.com
+	name = J. David Giese
+	email = johndgiese@gmail.com
+	signingkey = 55B9BF31D36C1C2B
 [color]
     diff = true
     ui = true
@@ -17,9 +18,13 @@
 [credential]
     helper = cache --timeout 604800
 [push]
-    default = upstream
+	default = upstream
 [merge]
-    tool = vimdiff
+	tool = vimdiff
+[commit]
+	gpgsign = true
+[gpg]
+	program = gpg
 [filter "lfs"]
     clean = git-lfs clean -- %f
     smudge = git-lfs smudge -- %f
