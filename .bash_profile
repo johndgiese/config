@@ -186,8 +186,15 @@ fi
 function sub (){(ag -l "$1" | xargs sed -i '' "s/$1/$2/g")}
 function ren (){(find . -type f -name "*$1*" -exec rename "s/$1/$2/" {} \;)}
 function sar (){(sub "$1" "$2" ; ren "$1" "$2")}
-alias cws="sed -i.bak -e 's/
-//g' -e 's/ *$//g'"
+alias cws="sed -i.bak -e 's///g' -e 's/ *$//g'"
+
+
+## WATCH DIRECTORY
+wd () {
+    directory=$1
+    command=$2
+    find "$1" | entr -s "$2"
+}
 
 
 ## CD SUB
