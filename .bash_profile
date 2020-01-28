@@ -91,6 +91,18 @@ if which pyenv-virtualenv-init > /dev/null; then
     eval "$(pyenv virtualenv-init -)"
 fi
 
+function pyenvc() {
+    current_directory=${PWD##*/}
+    version="3.7.0"
+    pyenv virtualenv "$version" "$current_directory"
+    pyenv local "$current_directory"
+}
+
+function pyenvd() {
+    current_directory=${PWD##*/}
+    pyenv uninstall "$current_directory"
+}
+
 if [ $PLATFORM == 'mac' ]; then
     # necessary so that pyenv creates framework builds of python, which is in
     # turn necessary so that vim can use python for auto complete, etc.
