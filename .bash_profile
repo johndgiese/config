@@ -227,3 +227,6 @@ fi
 
 ## GPG
 export GPG_TTY=$(tty)
+
+## MAC
+export BASH_SILENCE_DEPRECATION_WARNING=1
