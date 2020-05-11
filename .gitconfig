@@ -30,3 +30,5 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[filter "whitespace"]
+	clean = "sed -e 's/[  ]*$//' -e :a -e '/^\\n*$/{;N;ba' -e '}'"
