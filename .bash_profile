@@ -20,7 +20,7 @@ fi
 
 
 ## PATH
-export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/ruby/bin:$PATH:$HOME/.node/bin
+export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/local/ruby/bin:$PATH:$HOME/.node/bin
 
 
 ## PROMPT
