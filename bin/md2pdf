@@ -4,4 +4,4 @@ if [ $# -eq 0 ]; then
 else
     pdffile="$1"
 fi
-pandoc -V geometry:margin=1in -f gfm+smart -o "$pdffile"
+pandoc -V geometry:margin=1.5in -V pagestyle:empty -f gfm+smart -o "$pdffile"
