@@ -230,3 +230,28 @@ export GPG_TTY=$(tty)
 
 ## MAC
 export BASH_SILENCE_DEPRECATION_WARNING=1
+
+## SHORTCUTS
+
+ndw () {
+    _nd "$HOME/Documents/work.md"
+}
+
+nd () {
+    _nd "$HOME/Documents/journal.md"
+}
+
+_nd () {
+    path="$1"
+    today=$(date "+%d %B %Y")
+    today_line_start="# ${today}"
+    cat "$path" | fgrep "$today_line_start"
+    if (($?)); then
+        echo -e "\n${today_line_start}\n\n" >> $path
+    fi
+    vim "$path" +
+}
+
+ng () {
+    vim "$HOME/Documents/weekly-goals.csv" +
+}
