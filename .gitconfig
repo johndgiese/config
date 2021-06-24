@@ -9,7 +9,7 @@
     branch = true
     us = true
 [core]
-    editor = vim
+    editor = nvim
     autcrlf = false
 [init]
     templatedir = ~/.git_template

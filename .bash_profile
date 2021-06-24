@@ -126,7 +126,8 @@ export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig/"
 
 
 ## VIM
-alias v="vim"
+alias vi="nvim"
+alias vim="nvim"
 
 
 ## GIT
@@ -231,6 +232,9 @@ export GPG_TTY=$(tty)
 ## MAC
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
+## EDITOR
+export EDITOR=nvim
+
 ## SHORTCUTS
 
 ndw () {
@@ -249,9 +253,11 @@ _nd () {
     if (($?)); then
         echo -e "\n${today_line_start}\n\n" >> $path
     fi
-    vim "$path" +
+    vi "$path" +
 }
 
 ng () {
-    vim "$HOME/Documents/weekly-goals.csv" +
+    vi "$HOME/Documents/weekly-goals.csv" +
 }
+
+alias dc="docker compose"
